@@ -1,0 +1,44 @@
+# Visual Studio generated files and folders
+/.vs
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output and temporary files
+bin/
+obj/
+out/
+*.log
+*.cache
+*.pdb
+
+# Local configuration files
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# Dependency and package files
+*.nuget
+packages/
+project.lock.json
+project.assets.json
+nuget.lock
+
+# Test and publish-related files
+TestResults/
+PublishProfiles/
+
+# Third-party IDE files
+.idea/
+*.Rider/
+*.ReSharper/
+
+# Local database files
+*.mdf
+*.ldf
+
+# Exclude .vscode folder
+.vscode/
+*.code-workspace

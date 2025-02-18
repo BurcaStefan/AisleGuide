@@ -1,0 +1,6 @@
+@AisleGuide_HostAddress = http://localhost:5039
+
+GET {{AisleGuide_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
