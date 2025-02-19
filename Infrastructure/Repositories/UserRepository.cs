@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -35,7 +36,8 @@ namespace Infrastructure.Repositories
 
         public Task UpdateAsync(User user)
         {
-            throw new NotImplementedException();
+            context.Entry(user).State = EntityState.Modified;
+            return context.SaveChangesAsync();
         }
     }
 }

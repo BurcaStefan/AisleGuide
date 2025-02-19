@@ -2,25 +2,22 @@
 using MediatR;
 using Domain.Repositories;
 using Domain.Entities;
+using AutoMapper;
 
 namespace Application.Use_Cases.CommandHandlers
 {
     public class CreateUserCommanndHandler : IRequestHandler<CreateUserCommand, Guid>
     {
         private readonly IUserRepository repository;
-        public CreateUserCommanndHandler(IUserRepository repository)
+        private readonly IMapper mapper;
+        public CreateUserCommanndHandler(IUserRepository repository, IMapper mapper)
         {
             this.repository = repository;
+            this.mapper = mapper;
         }
         public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            var newUser = new User
-            {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Email = request.Email,
-                Password = request.Password
-            };
+            var newUser=mapper.Map<User>(request);
 
             return await repository.AddAsync(newUser);
         }

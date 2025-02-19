@@ -19,5 +19,17 @@ namespace AisleGuide.Controllers
         {
             return await mediator.Send(command);
         }
+
+        [HttpPut("id")]
+        public async Task<ActionResult> UpdateUser(Guid id, UpdateUserCommand command)
+        {
+            if(id != command.Id)
+            {
+                return BadRequest("Id is not identical with command.Id");
+            }
+
+            await mediator.Send(command);
+            return NoContent();
+        }
     }
 }
