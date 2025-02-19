@@ -35,7 +35,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 //-------
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 //-------
 var app = builder.Build();
 
