@@ -27,9 +27,18 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public Task DeleteAsynnc(Guid id)
+        public async Task<Result<Guid>> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var user = await context.Users.FindAsync(id);
+
+            if (user == null)
+            {
+                return Result<Guid>.Failure("User not found");
+            }
+
+            context.Users.Remove(user);
+            await context.SaveChangesAsync();
+            return Result<Guid>.Success(user.Id);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()

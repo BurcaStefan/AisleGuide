@@ -55,7 +55,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpPut("id")]
-        public async Task<ActionResult> UpdateUser(Guid id, UpdateUserCommand command)
+        public async Task<ActionResult<Result<Guid>>> UpdateUser(Guid id, UpdateUserCommand command)
         {
             if(id != command.Id)
             {
@@ -69,6 +69,18 @@ namespace AisleGuide.Controllers
                 return BadRequest(result.ErrorMessage);
             }
             return StatusCode(StatusCodes.Status200OK, result.Data);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<Result<Guid>>> DeleteUser(Guid id)
+        {
+            var command = new DeleteUserCommand { Id = id };
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return StatusCode(StatusCodes.Status204NoContent);
         }
     }
 }

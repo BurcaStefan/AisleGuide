@@ -8,7 +8,7 @@
 
         protected Result(bool isSuccess, T data, string errorMessage)
         {
-            isSuccess = IsSuccess;
+            IsSuccess = isSuccess;
             Data = data;
             ErrorMessage = errorMessage;
         }
