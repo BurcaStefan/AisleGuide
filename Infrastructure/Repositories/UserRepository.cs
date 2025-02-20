@@ -32,12 +32,12 @@ namespace Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<User>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await context.Users.ToListAsync();
         }
 
-        public async Task<User> GetByIdAsync(Guid id)
+        public async Task<User?> GetByIdAsync(Guid id)
         {
             return await context.Users.FindAsync(id);
         }

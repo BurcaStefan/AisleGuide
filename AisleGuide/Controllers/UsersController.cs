@@ -30,6 +30,18 @@ namespace AisleGuide.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        public async Task<ActionResult<List<UserDto>>> GetAllUsers()
+        {
+            var query = new GetAllUsersQuery();
+            var result = await mediator.Send(query);
+            if(result == null) 
+            {
+                return BadRequest("No users found");
+            }
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<ActionResult<Result<Guid>>> CreateUser(CreateUserCommand command)
         {
