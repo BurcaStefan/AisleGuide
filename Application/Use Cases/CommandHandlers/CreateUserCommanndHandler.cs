@@ -3,11 +3,11 @@ using MediatR;
 using Domain.Repositories;
 using Domain.Entities;
 using AutoMapper;
-using System.ComponentModel.DataAnnotations;
+using Domain.Common;
 
 namespace Application.Use_Cases.CommandHandlers
 {
-    public class CreateUserCommanndHandler : IRequestHandler<CreateUserCommand, Guid>
+    public class CreateUserCommanndHandler : IRequestHandler<CreateUserCommand, Result<Guid>>
     {
         private readonly IUserRepository repository;
         private readonly IMapper mapper;
@@ -16,23 +16,16 @@ namespace Application.Use_Cases.CommandHandlers
             this.repository = repository;
             this.mapper = mapper;
         }
-        public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            //CreateUserCommandValidator validationRules = new CreateUserCommandValidator();
-            //var validator=validationRules.Validate(request);
-            //if (!validator.IsValid) 
-            //{ 
-            //    var errorResult = new List<string>();
-            //    foreach (var error in validator.Errors)
-            //    {
-            //        errorResult.Add(error.ErrorMessage);
-            //    }
-            //    throw new ValidationException(errorResult.ToString());
-            //}
-
-
             var newUser=mapper.Map<User>(request);
-            return await repository.AddAsync(newUser);
+            var result= await repository.AddAsync(newUser);
+            
+            if(result.IsSuccess)
+            {
+                return Result<Guid>.Success(result.Data);
+            }
+            return Result<Guid>.Failure(result.ErrorMessage);
         }
     }
 }

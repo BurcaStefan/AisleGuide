@@ -1,4 +1,7 @@
-﻿using Application.Use_Cases.Commands;
+﻿using Application.DTOs;
+using Application.Use_Cases.Commands;
+using Application.Use_Cases.Queries;
+using Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,10 +17,28 @@ namespace AisleGuide.Controllers
             this.mediator = mediator;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Guid>> CreateUser(CreateUserCommand command)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<UserDto>> GetUserById(Guid id)
         {
-            return await mediator.Send(command);
+            var query = new GetUserByIdQuery { Id = id };
+            var result = await mediator.Send(query);
+
+            if(result == null)
+            {
+                return BadRequest("User not found");
+            }
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Result<Guid>>> CreateUser(CreateUserCommand command)
+        {
+            var result = await mediator.Send(command);
+            if(!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return StatusCode(StatusCodes.Status201Created, result.Data);
         }
 
         [HttpPut("id")]

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Domain.Common;
+using FluentValidation;
 using MediatR;
 
 namespace Application
@@ -21,7 +22,27 @@ namespace Application
                 .ToList();
             if (failures.Count != 0)
             {
-                throw new ValidationException(failures);
+                //throw new ValidationException(failures);
+                if (failures.Count != 0)
+                {
+                    var failuresString = string.Join(", ", failures);
+
+                    if (typeof(TResponse).IsGenericType && typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
+                    {
+                        var resultType = typeof(TResponse).GetGenericArguments()[0];
+                        var failureMethod = typeof(Result<>).MakeGenericType(resultType)
+                            .GetMethod("Failure", new[] { typeof(string) });
+
+                        if (failureMethod != null)
+                        {
+                            var failureResult = failureMethod.Invoke(null, new object[] { failuresString });
+                            if (failureResult != null)
+                            {
+                                return (TResponse)failureResult;
+                            }
+                        }
+                    }
+                }
             }
 
             return await next();

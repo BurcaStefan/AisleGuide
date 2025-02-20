@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Common;
+using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +13,18 @@ namespace Infrastructure.Repositories
         {
             this.context = context;        
         }
-        public async Task<Guid> AddAsync(User user)
+        public async Task<Result<Guid>> AddAsync(User user)
         {
-            await context.Users.AddAsync(user);
-            await context.SaveChangesAsync();
-            return user.Id;
+            try 
+            { 
+                await context.Users.AddAsync(user);
+                await context.SaveChangesAsync();
+                return Result<Guid>.Success(user.Id);
+            }
+            catch (Exception e)
+            {
+                return Result<Guid>.Failure(e.InnerException!.ToString());  
+            }
         }
 
         public Task DeleteAsynnc(Guid id)
@@ -29,9 +37,9 @@ namespace Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<User> GetByIdAsync(Guid id)
+        public async Task<User> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await context.Users.FindAsync(id);
         }
 
         public Task UpdateAsync(User user)
