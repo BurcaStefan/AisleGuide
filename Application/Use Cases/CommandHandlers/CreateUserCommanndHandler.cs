@@ -21,11 +21,12 @@ namespace Application.Use_Cases.CommandHandlers
             var newUser=mapper.Map<User>(request);
             var result= await repository.AddAsync(newUser);
             
-            if(result.IsSuccess)
+            if(!result.IsSuccess)
             {
-                return Result<Guid>.Success(result.Data);
+                return Result<Guid>.Failure(result.ErrorMessage);
             }
-            return Result<Guid>.Failure(result.ErrorMessage);
+
+            return Result<Guid>.Success(result.Data); 
         }
     }
 }

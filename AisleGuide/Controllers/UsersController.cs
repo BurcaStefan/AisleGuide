@@ -17,6 +17,19 @@ namespace AisleGuide.Controllers
             this.mediator = mediator;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<List<UserDto>>> GetAllUsers()
+        {
+            var query = new GetAllUsersQuery();
+            var result = await mediator.Send(query);
+
+            if(result == null) 
+            {
+                return BadRequest("No users found");
+            }
+            return Ok(result);
+        }
+
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<UserDto>> GetUserById(Guid id)
         {
@@ -26,18 +39,6 @@ namespace AisleGuide.Controllers
             if(result == null)
             {
                 return BadRequest("User not found");
-            }
-            return Ok(result);
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<UserDto>>> GetAllUsers()
-        {
-            var query = new GetAllUsersQuery();
-            var result = await mediator.Send(query);
-            if(result == null) 
-            {
-                return BadRequest("No users found");
             }
             return Ok(result);
         }
@@ -61,8 +62,13 @@ namespace AisleGuide.Controllers
                 return BadRequest("Id is not identical with command.Id");
             }
 
-            await mediator.Send(command);
-            return NoContent();
+            var result=await mediator.Send(command);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return StatusCode(StatusCodes.Status200OK, result.Data);
         }
     }
 }

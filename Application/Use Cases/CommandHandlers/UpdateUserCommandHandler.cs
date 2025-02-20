@@ -1,12 +1,13 @@
 ﻿using Application.Use_Cases.Commands;
 using AutoMapper;
+using Domain.Common;
 using Domain.Entities;
 using Domain.Repositories;
 using MediatR;
 
 namespace Application.Use_Cases.CommandHandlers
 {
-    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand>
+    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Result<Guid>>
     {
         private readonly IUserRepository repository;
         private readonly IMapper mapper;
@@ -15,10 +16,17 @@ namespace Application.Use_Cases.CommandHandlers
             this.repository = repository;
             this.mapper = mapper;
         }
-        public Task Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
-            var user = mapper.Map<User>(request);
-            return repository.UpdateAsync(user);
+            var updatedUser = mapper.Map<User>(request);
+            var result = await repository.UpdateAsync(updatedUser);
+
+            if (!result.IsSuccess)
+            {
+                return Result<Guid>.Failure(result.ErrorMessage);
+            }
+
+            return Result<Guid>.Success(result.Data);
         }
     }
 }

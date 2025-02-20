@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Domain.Common;
+using MediatR;
 
 namespace Application.Use_Cases.Commands
 {
-    public class UpdateUserCommand : IRequest
+    public class UpdateUserCommand : IRequest<Result<Guid>>
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; }
