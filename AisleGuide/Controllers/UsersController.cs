@@ -82,5 +82,16 @@ namespace AisleGuide.Controllers
             }
             return StatusCode(StatusCodes.Status204NoContent);
         }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<string>> Login(LoginUserCommand command)
+        {
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return Ok(result.Data);
+        }
     }
 }

@@ -19,6 +19,7 @@ namespace Application.Use_Cases.CommandHandlers
         public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             var newUser=mapper.Map<User>(request);
+            newUser.Password = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
             var result= await repository.AddAsync(newUser);
             
             if(!result.IsSuccess)
