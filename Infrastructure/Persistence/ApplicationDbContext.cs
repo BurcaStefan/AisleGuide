@@ -1,6 +1,5 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Infrastructure.Persistence
@@ -23,7 +22,6 @@ namespace Infrastructure.Persistence
         {
             modelBuilder.HasPostgresExtension("uuid-ossp");
 
-            // User configuration
             modelBuilder.Entity<User>(entity => {
                 entity.ToTable("users");
                 entity.HasKey(e => e.Id);
@@ -52,7 +50,6 @@ namespace Infrastructure.Persistence
                     .HasDefaultValue(false);
             });
 
-            // Product configuration
             modelBuilder.Entity<Product>(entity => {
                 entity.ToTable("products");
                 entity.HasKey(e => e.Id);
@@ -88,7 +85,6 @@ namespace Infrastructure.Persistence
                     .IsRequired()
                     .HasDefaultValue(0);
 
-                // Nutritional information
                 entity.Property(e => e.Calories)
                     .HasColumnName("calories")
                     .IsRequired();
@@ -118,7 +114,6 @@ namespace Infrastructure.Persistence
                     .IsRequired();
             });
 
-            // Favorite configuration
             modelBuilder.Entity<Favorite>(entity => {
                 entity.ToTable("favorites");
                 entity.HasKey(e => new { e.UserId, e.ProductId });
@@ -140,7 +135,6 @@ namespace Infrastructure.Persistence
                     .HasForeignKey(e => e.ProductId);
             });
 
-            // Review configuration
             modelBuilder.Entity<Review>(entity => {
                 entity.ToTable("reviews");
                 entity.HasKey(e => new { e.UserId, e.ProductId });
