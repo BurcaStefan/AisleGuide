@@ -154,8 +154,8 @@ namespace Infrastructure.Persistence
                     .HasColumnName("product_id")
                     .HasColumnType("uuid");
 
-                entity.Property(e => e.Message)
-                    .HasColumnName("review")
+                entity.Property(e => e.Content)
+                    .HasColumnName("content")
                     .HasMaxLength(200);
 
                 entity.Property(e => e.Rating)
