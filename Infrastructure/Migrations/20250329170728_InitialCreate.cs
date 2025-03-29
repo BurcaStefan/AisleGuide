@@ -106,7 +106,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_history_list", x => x.id);
+                    table.PrimaryKey("PK_history_list", x => new { x.id, x.user_id, x.product_id });
                     table.ForeignKey(
                         name: "FK_history_list_products_product_id",
                         column: x => x.product_id,

@@ -180,7 +180,7 @@ namespace Infrastructure.Persistence
 
             modelBuilder.Entity<HistoryList>(entity => {
                 entity.ToTable("history_list");
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => new { e.Id, e.UserId, e.ProductId });
 
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
