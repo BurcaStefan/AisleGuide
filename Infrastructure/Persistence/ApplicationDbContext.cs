@@ -16,7 +16,7 @@ namespace Infrastructure.Persistence
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<HistoryList> HistoryLists { get; set; }
-        public DbSet<Image> Images { get; set; }
+        public DbSet<Domain.Entities.Image> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -153,12 +153,12 @@ namespace Infrastructure.Persistence
 
                 entity.Property(e => e.ProductId)
                     .HasColumnName("product_id")
-                    .HasColumnType("uuid");
+                    .HasColumnType("uuid")
+                    .IsRequired();
 
                 entity.Property(e => e.Content)
                     .HasColumnName("content")
-                    .HasMaxLength(200)
-                    .IsRequired();
+                    .HasMaxLength(200);
 
                 entity.Property(e => e.Rating)
                     .HasColumnName("star_rating")
@@ -216,7 +216,7 @@ namespace Infrastructure.Persistence
                     .HasForeignKey(e => e.ProductId);
             });
 
-            modelBuilder.Entity<Image>(entity => {
+            modelBuilder.Entity<Domain.Entities.Image>(entity => {
                 entity.ToTable("images");
                 entity.HasKey(e => e.Id);
 
