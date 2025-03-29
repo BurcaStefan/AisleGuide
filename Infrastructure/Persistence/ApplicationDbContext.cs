@@ -83,7 +83,7 @@ namespace Infrastructure.Persistence
                 entity.Property(e => e.AverageRating)
                     .HasColumnName("average_rating")
                     .IsRequired()
-                    .HasDefaultValue(0);
+                    .HasDefaultValue(0.0f);
 
                 entity.Property(e => e.Calories)
                     .HasColumnName("calories")
