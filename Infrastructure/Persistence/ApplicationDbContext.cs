@@ -120,11 +120,13 @@ namespace Infrastructure.Persistence
 
                 entity.Property(e => e.UserId)
                     .HasColumnName("user_id")
-                    .HasColumnType("uuid");
+                    .HasColumnType("uuid")
+                    .IsRequired();
 
                 entity.Property(e => e.ProductId)
                     .HasColumnName("product_id")
-                    .HasColumnType("uuid");
+                    .HasColumnType("uuid")
+                    .IsRequired();
 
                 entity.HasOne<User>()
                     .WithMany()
@@ -137,7 +139,12 @@ namespace Infrastructure.Persistence
 
             modelBuilder.Entity<Review>(entity => {
                 entity.ToTable("reviews");
-                entity.HasKey(e => new { e.UserId, e.ProductId });
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasColumnType("uuid")
+                    .HasDefaultValueSql("uuid_generate_v4()")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.UserId)
                     .HasColumnName("user_id")
@@ -147,11 +154,11 @@ namespace Infrastructure.Persistence
                     .HasColumnName("product_id")
                     .HasColumnType("uuid");
 
-                entity.Property(e => e.ReviewText)
+                entity.Property(e => e.Message)
                     .HasColumnName("review")
                     .HasMaxLength(200);
 
-                entity.Property(e => e.StarRating)
+                entity.Property(e => e.Rating)
                     .HasColumnName("star_rating")
                     .IsRequired();
 
@@ -169,7 +176,6 @@ namespace Infrastructure.Persistence
                     .HasForeignKey(e => e.ProductId);
             });
 
-            // HistoryList configuration
             modelBuilder.Entity<HistoryList>(entity => {
                 entity.ToTable("history_list");
                 entity.HasKey(e => e.Id);
