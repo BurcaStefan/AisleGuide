@@ -148,7 +148,8 @@ namespace Infrastructure.Persistence
 
                 entity.Property(e => e.UserId)
                     .HasColumnName("user_id")
-                    .HasColumnType("uuid");
+                    .HasColumnType("uuid")
+                    .IsRequired();
 
                 entity.Property(e => e.ProductId)
                     .HasColumnName("product_id")
@@ -156,7 +157,8 @@ namespace Infrastructure.Persistence
 
                 entity.Property(e => e.Content)
                     .HasColumnName("content")
-                    .HasMaxLength(200);
+                    .HasMaxLength(200)
+                    .IsRequired();
 
                 entity.Property(e => e.Rating)
                     .HasColumnName("star_rating")
@@ -214,7 +216,6 @@ namespace Infrastructure.Persistence
                     .HasForeignKey(e => e.ProductId);
             });
 
-            // Image configuration
             modelBuilder.Entity<Image>(entity => {
                 entity.ToTable("images");
                 entity.HasKey(e => e.Id);
