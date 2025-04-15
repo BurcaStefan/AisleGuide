@@ -257,7 +257,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("password");
 
-                    b.Property<bool>("isAdmin")
+                    b.Property<bool>("IsAdmin")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)

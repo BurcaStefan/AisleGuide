@@ -29,7 +29,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "Smart Real Estate Management System",
+        Title = "AisleGuide",
         Version = "v1",
     });
 });

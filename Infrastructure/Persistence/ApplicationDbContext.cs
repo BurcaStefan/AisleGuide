@@ -44,7 +44,7 @@ namespace Infrastructure.Persistence
                 entity.Property(e => e.Password)
                     .HasColumnName("password")
                     .IsRequired();
-                entity.Property(e => e.isAdmin)
+                entity.Property(e => e.IsAdmin)
                     .HasColumnName("is_admin")
                     .IsRequired()
                     .HasDefaultValue(false);
