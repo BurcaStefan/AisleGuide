@@ -24,6 +24,12 @@ namespace Infrastructure.Repositories
         {
             try
             {
+                var existinngUser = await context.Users.SingleOrDefaultAsync(u => u.Email == user.Email);
+                if (existinngUser != null)
+                {
+                    return Result<Guid>.Failure("This email is already taken");
+                }
+
                 await context.Users.AddAsync(user);
                 await context.SaveChangesAsync();
                 return Result<Guid>.Success(user.Id);

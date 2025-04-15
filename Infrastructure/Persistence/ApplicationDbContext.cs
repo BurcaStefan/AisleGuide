@@ -1,6 +1,5 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Infrastructure.Persistence
 {
@@ -16,7 +15,7 @@ namespace Infrastructure.Persistence
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<HistoryList> HistoryLists { get; set; }
-        public DbSet<Domain.Entities.Image> Images { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -216,7 +215,7 @@ namespace Infrastructure.Persistence
                     .HasForeignKey(e => e.ProductId);
             });
 
-            modelBuilder.Entity<Domain.Entities.Image>(entity => {
+            modelBuilder.Entity<Image>(entity => {
                 entity.ToTable("images");
                 entity.HasKey(e => e.Id);
 
