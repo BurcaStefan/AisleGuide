@@ -69,5 +69,17 @@ namespace AisleGuide.Controllers
             }
             return StatusCode(StatusCodes.Status200OK, result.Data);
         }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<Result<bool>>> DeleteProduct(Guid id)
+        {
+            var command = new DeleteProductCommand { Id = id };
+            var result = await mediator.Send(command) as Result<bool>;
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return StatusCode(StatusCodes.Status204NoContent);
+        }
     }
 }

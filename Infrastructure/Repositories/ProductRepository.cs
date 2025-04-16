@@ -40,7 +40,15 @@ namespace Infrastructure.Repositories
 
         public async Task<Result<bool>> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var product = await context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return Result<bool>.Failure("Product not found");
+            }
+
+            context.Products.Remove(product);
+            await context.SaveChangesAsync();
+            return Result<bool>.Success(true);
         }
 
         public async Task<Result<bool>> UpdateAsync(Product product)
