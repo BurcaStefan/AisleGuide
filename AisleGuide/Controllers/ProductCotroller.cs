@@ -53,5 +53,21 @@ namespace AisleGuide.Controllers
             }
             return StatusCode(StatusCodes.Status201Created, result.Data);
         }
+
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<Result<bool>>> UpdateProduct(Guid id, UpdateProductCommand command)
+        {
+            if(id != command.Id)
+            {
+                return BadRequest("Product ID mismatch");
+            }
+            var result = await mediator.Send(command) as Result<bool>;
+            
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return StatusCode(StatusCodes.Status200OK, result.Data);
+        }
     }
 }

@@ -1,6 +1,9 @@
-﻿namespace Application.DTOs
+﻿using Domain.Common;
+using MediatR;
+
+namespace Application.Use_Cases.Commands.ProductCommands
 {
-    public class ProductDto
+    public class UpdateProductCommand :  IRequest<Result<bool>>
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -10,7 +13,6 @@
         public string ISBN { get; set; }
         public string? ShelvingUnit { get; set; }
         public float? AverageRating { get; set; }
-
         public int Calories { get; set; }
         public float Protein { get; set; }
         public float Carbohydrates { get; set; }

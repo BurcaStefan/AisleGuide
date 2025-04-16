@@ -38,14 +38,23 @@ namespace Infrastructure.Repositories
             return await context.Products.FindAsync(id);
         }
 
-        Task<Result<bool>> IProductRepository.DeleteAsync(Guid id)
+        public async Task<Result<bool>> DeleteAsync(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        Task<Result<bool>> IProductRepository.UpdateAsync(Product product)
+        public async Task<Result<bool>> UpdateAsync(Product product)
         {
-            throw new NotImplementedException();
+            try
+            {
+                context.Entry(product).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(ex.Message);
+            }
         }
     }
 }
