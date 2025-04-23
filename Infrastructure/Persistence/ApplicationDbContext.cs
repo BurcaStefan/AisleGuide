@@ -78,10 +78,10 @@ namespace Infrastructure.Persistence
                     .HasMaxLength(13);
                 entity.Property(e => e.ShelvingUnit)
                     .HasColumnName("shelving_unit")
-                    .HasMaxLength(10);
+                    .HasMaxLength(10)
+                    .HasDefaultValue(null);
                 entity.Property(e => e.AverageRating)
                     .HasColumnName("average_rating")
-                    .IsRequired()
                     .HasDefaultValue(0.0f);
 
                 entity.Property(e => e.Calories)

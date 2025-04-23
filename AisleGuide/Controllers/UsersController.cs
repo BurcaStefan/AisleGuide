@@ -59,7 +59,7 @@ namespace AisleGuide.Controllers
         {
             if(id != command.Id)
             {
-                return BadRequest("Id is not identical with command.Id");
+                return BadRequest("User ID mismatch");
             }
 
             var result=await mediator.Send(command);

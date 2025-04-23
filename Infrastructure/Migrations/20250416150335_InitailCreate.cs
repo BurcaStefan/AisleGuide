@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitailCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,7 +37,7 @@ namespace Infrastructure.Migrations
                     category = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     isbn = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
                     shelving_unit = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
-                    average_rating = table.Column<float>(type: "real", nullable: false, defaultValue: 0f),
+                    average_rating = table.Column<float>(type: "real", nullable: true, defaultValue: 0f),
                     calories = table.Column<int>(type: "integer", nullable: false),
                     protein = table.Column<float>(type: "real", nullable: false),
                     carbohydrates = table.Column<float>(type: "real", nullable: false),
