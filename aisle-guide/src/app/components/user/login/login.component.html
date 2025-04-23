@@ -1,0 +1,34 @@
+<!-- <form>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input #emailInput type="text" id="email" name="email" required>
+        <br>
+        <label for="password">Password</label>
+        <input #passwordInput type="password" id="password" name="password" required>
+        <br>
+        <button type="button" (click)="login(emailInput.value, passwordInput.value)">Login</button>
+    </div>
+</form> -->
+
+<form>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input #emailInput type="text" id="email" name="email" required>
+        <br>
+        <label for="password">Password</label>
+        <input #passwordInput type="password" id="password" name="password" required>
+        <br>
+        <button type="button" [disabled]="loading" (click)="login(emailInput.value, passwordInput.value)">
+            <span *ngIf="loading">Se procesează...</span>
+            <span *ngIf="!loading">Login</span>
+        </button>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+    </div>
+</form>
