@@ -41,18 +41,18 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<Result<Guid>> DeleteAsync(Guid id)
+        public async Task<Result<bool>> DeleteAsync(Guid id)
         {
             var user = await context.Users.FindAsync(id);
 
             if (user == null)
             {
-                return Result<Guid>.Failure("User not found");
+                return Result<bool>.Failure("User not found");
             }
 
             context.Users.Remove(user);
             await context.SaveChangesAsync();
-            return Result<Guid>.Success(user.Id);
+            return Result<bool>.Success(true);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
@@ -65,17 +65,17 @@ namespace Infrastructure.Repositories
             return await context.Users.FindAsync(id);
         }
 
-        public async Task<Result<Guid>> UpdateAsync(User user)
+        public async Task<Result<bool>> UpdateAsync(User user)
         {
             try
             {
                 context.Entry(user).State = EntityState.Modified;
                 await context.SaveChangesAsync();
-                return Result<Guid>.Success(user.Id);
+                return Result<bool>.Success(true);
             }
             catch (Exception e)
             {
-                return Result<Guid>.Failure(e.InnerException!.ToString());
+                return Result<bool>.Failure(e.InnerException!.ToString());
             }
         }
 

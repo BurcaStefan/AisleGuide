@@ -10,11 +10,11 @@ namespace AisleGuide.Controllers
     [Route("api/[controller]")]
     [ApiController]
 
-    public class ProductCotroller : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IMediator mediator;
 
-        public ProductCotroller(IMediator mediator)
+        public ProductsController(IMediator mediator)
         {
             this.mediator = mediator;
         }

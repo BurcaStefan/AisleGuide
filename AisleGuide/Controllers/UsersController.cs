@@ -55,7 +55,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpPut("id")]
-        public async Task<ActionResult<Result<Guid>>> UpdateUser(Guid id, UpdateUserCommand command)
+        public async Task<ActionResult<Result<bool>>> UpdateUser(Guid id, UpdateUserCommand command)
         {
             if(id != command.Id)
             {
@@ -72,7 +72,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<Result<Guid>>> DeleteUser(Guid id)
+        public async Task<ActionResult<Result<bool>>> DeleteUser(Guid id)
         {
             var command = new DeleteUserCommand { Id = id };
             var result = await mediator.Send(command);

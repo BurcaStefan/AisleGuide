@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Use_Cases.CommandHandlers
 {
-    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Result<Guid>>
+    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Result<bool>>
     {
         private readonly IUserRepository repository;
         private readonly IMapper mapper;
@@ -16,17 +16,17 @@ namespace Application.Use_Cases.CommandHandlers
             this.repository = repository;
             this.mapper = mapper;
         }
-        public async Task<Result<Guid>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
             var updatedUser = mapper.Map<User>(request);
             var result = await repository.UpdateAsync(updatedUser);
 
             if (!result.IsSuccess)
             {
-                return Result<Guid>.Failure(result.ErrorMessage);
+                return Result<bool>.Failure(result.ErrorMessage);
             }
 
-            return Result<Guid>.Success(result.Data);
+            return Result<bool>.Success(result.Data);
         }
     }
 }

@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Use_Cases.CommandHandlers
 {
-    public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Result<Guid>>
+    public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Result<bool>>
     {
         readonly IUserRepository repository;
         readonly IMapper mapper;
@@ -15,14 +15,14 @@ namespace Application.Use_Cases.CommandHandlers
             this.repository = repository;
             this.mapper = mapper;
         }
-        public async Task<Result<Guid>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
             var result = await repository.DeleteAsync(request.Id);
             if (!result.IsSuccess)
             {
-                return Result<Guid>.Failure(result.ErrorMessage);
+                return Result<bool>.Failure(result.ErrorMessage);
             }
-            return Result<Guid>.Success(result.Data);
+            return Result<bool>.Success(result.Data);
         }
     }
 }
