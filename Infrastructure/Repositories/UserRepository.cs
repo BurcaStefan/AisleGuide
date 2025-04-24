@@ -1,4 +1,5 @@
-﻿using Domain.Common;
+﻿using BCrypt.Net;
+using Domain.Common;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Persistence;
@@ -81,7 +82,7 @@ namespace Infrastructure.Repositories
         public async Task<Result<string>> LoginAsync(User user)
         {
             var userInDb = await context.Users.SingleOrDefaultAsync(u => u.Email == user.Email);
-            if (userInDb == null)
+            if (userInDb == null || !BCrypt.Net.BCrypt.Verify(user.Password, userInDb.Password))
             {
                 return Result<string>.Failure("Invalid credentials");
             }
@@ -90,7 +91,7 @@ namespace Infrastructure.Repositories
             var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]!);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user.Id.ToString()) }),
+                Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userInDb.Id.ToString()) }),
                 Expires = DateTime.UtcNow.AddHours(3),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
