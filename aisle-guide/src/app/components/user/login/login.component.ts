@@ -58,8 +58,7 @@ export class LoginComponent {
           next: (user) => {
             if (user.isAdmin) {
               setTimeout(() => {
-                //this.router.navigate(['/admin-home']); // De modificat pentru admin
-                console.log('User is admin:', user);
+                this.router.navigate(['/admin-home']);
               }, 1000);
             } else {
               setTimeout(() => {
