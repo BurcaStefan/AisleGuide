@@ -81,5 +81,16 @@ namespace AisleGuide.Controllers
             }
             return StatusCode(StatusCodes.Status204NoContent);
         }
+
+        [HttpGet("paginated")]
+        public async Task<IActionResult> GetProductsPaginated([FromQuery] GetProductsPaginationByFilterQuery query)
+        {
+            var result = await mediator.Send(query);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return Ok(result.Data);
+        }
     }
 }

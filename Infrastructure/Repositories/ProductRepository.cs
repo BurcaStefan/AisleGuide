@@ -18,6 +18,12 @@ namespace Infrastructure.Repositories
         {
             try
             {
+                var existingProduct = await context.Products.SingleOrDefaultAsync(p => p.ISBN == product.ISBN);
+                if (existingProduct != null)
+                {
+                    return Result<Guid>.Failure("A product with this ISBN exists.");
+                }
+
                 await context.Products.AddAsync(product);
                 await context.SaveChangesAsync();
                 return Result<Guid>.Success(product.Id);

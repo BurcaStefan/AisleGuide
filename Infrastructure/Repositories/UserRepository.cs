@@ -1,5 +1,4 @@
-﻿using BCrypt.Net;
-using Domain.Common;
+﻿using Domain.Common;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Persistence;

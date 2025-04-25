@@ -30,4 +30,10 @@ export class ProductService {
   public deleteProduct(id: string): Observable<void> {
     return this.http.delete<void>(`${this.productUrl}/${id}`);
   }
+
+  public getProductsPaginatedByFilter(queryParams: any): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.productUrl}/paginated`, {
+      params: queryParams,
+    });
+  }
 }
