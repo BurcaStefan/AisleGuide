@@ -30,13 +30,14 @@
         }
     </div>
 
-    <button type="submit" [disabled]="loading || loginForm.invalid" class="btn btn-primary">
+    <button type="submit" [disabled]="loading || loginForm.invalid" class="btn-login">
         @if(loading) {
         <span>Processing...</span>
         } @else {
         <span>Login</span>
         }
     </button>
+    <button type="button" (click)="navigateToRegister()" class="btn-register">Register</button>
 
     <div *ngIf="errorMessage" class="error-message">
         {{ errorMessage }}
