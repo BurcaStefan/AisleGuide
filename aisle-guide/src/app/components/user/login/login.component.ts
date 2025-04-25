@@ -1,48 +1,3 @@
-// import { Component } from '@angular/core';
-// import { UserService } from '../../../services/user/user.service';
-// import { CommonModule } from '@angular/common';
-
-// @Component({
-//   selector: 'app-login',
-//   templateUrl: './login.component.html',
-//   styleUrls: ['./login.component.scss'],
-//   standalone: true,
-//   imports: [CommonModule],
-//   providers: [UserService],
-// })
-// export class LoginComponent {
-//   email: string = '';
-//   password: string = '';
-//   loading: boolean = false;
-//   errorMessage: string = '';
-//   successMessage: string = '';
-
-//   constructor(private userService: UserService) {}
-
-//   login(email: string, password: string) {
-//     this.email = email;
-//     this.password = password;
-//     this.loading = true;
-//     this.errorMessage = '';
-//     this.successMessage = '';
-
-//     this.userService.login(this.email, this.password).subscribe({
-//       next: (token) => {
-//         this.successMessage = 'Login successful!';
-//         this.loading = false;
-//         localStorage.setItem('token', token);
-//         console.log('Token:', token);
-//       },
-//       error: (error) => {
-//         console.error('Login failed:', error);
-//         this.errorMessage =
-//           error.error || 'Login failed. Please check your credentials.';
-//         this.loading = false;
-//       },
-//     });
-//   }
-// }
-
 import { Component } from '@angular/core';
 import { UserService } from '../../../services/user/user.service';
 import { CommonModule } from '@angular/common';
@@ -52,6 +7,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -67,7 +23,11 @@ export class LoginComponent {
   errorMessage: string = '';
   successMessage: string = '';
 
-  constructor(private userService: UserService, private fb: FormBuilder) {
+  constructor(
+    private userService: UserService,
+    private fb: FormBuilder,
+    private router: Router
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -91,6 +51,23 @@ export class LoginComponent {
         this.loading = false;
         localStorage.setItem('token', token);
         console.log('Token:', token);
+
+        const userId = this.userService.getUserIdFromToken(token);
+
+        this.userService.getUserById(userId).subscribe({
+          next: (user) => {
+            if (user.isAdmin) {
+              setTimeout(() => {
+                //this.router.navigate(['/admin-home']); // De modificat pentru admin
+                console.log('User is admin:', user);
+              }, 1000);
+            } else {
+              setTimeout(() => {
+                this.router.navigate(['/home']);
+              }, 1000);
+            }
+          },
+        });
       },
       error: (error) => {
         console.error('Login failed:', error);

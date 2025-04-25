@@ -38,4 +38,15 @@ export class UserService {
   public deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.userUrl}/${id}`);
   }
+
+  public getUserIdFromToken(token: string): string {
+    try {
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+      console.log(tokenPayload);
+      return tokenPayload.unique_name;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return '';
+    }
+  }
 }
