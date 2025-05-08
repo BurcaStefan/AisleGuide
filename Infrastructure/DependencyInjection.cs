@@ -43,6 +43,7 @@ namespace Infrastructure
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 
             return services;
         }

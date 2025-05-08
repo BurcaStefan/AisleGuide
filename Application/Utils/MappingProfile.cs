@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Use_Cases.Commands;
+using Application.Use_Cases.Commands.FavoriteCommands;
 using Application.Use_Cases.Commands.ProductCommands;
 using AutoMapper;
 using Domain.Entities;
@@ -18,6 +19,10 @@ namespace Application.Utils
             CreateMap<Product, ProductDto>().ReverseMap();
             CreateMap<CreateProductCommand, Product>().ReverseMap();
             CreateMap<UpdateProductCommand, Product>().ReverseMap();
+            CreateMap<DeleteProductCommand, Product>().ReverseMap();
+
+            CreateMap<Favorite, FavoriteDto>().ReverseMap();
+            CreateMap<CreateFavoriteCommand, Favorite>().ReverseMap();
         }
     }
 }
