@@ -3,18 +3,14 @@ using FluentValidation;
 
 namespace Application.Use_Cases.Commands.ReviewCommands
 {
-    public class CreateReviewCommandValidator : AbstractValidator<CreateReviewCommand>
+    public class UpdateReviewCommandValidator : AbstractValidator<UpdateReviewCommand>
     {
-        public CreateReviewCommandValidator() 
+        public UpdateReviewCommandValidator() 
         {
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.Id)
                 .NotEmpty()
                 .Must(GuidValidator.BeAValidGuid)
-                .WithMessage("Product ID must be a valid Guid.");
-            RuleFor(x => x.UserId)
-                .NotEmpty()
-                .Must(GuidValidator.BeAValidGuid)
-                .WithMessage("User ID must be a valid Guid.");
+                .WithMessage("ID must be a valid Guid.");
             RuleFor(x => x.Content)
                 .MaximumLength(200)
                 .WithMessage("Review content cannot exceed 200 characters.");

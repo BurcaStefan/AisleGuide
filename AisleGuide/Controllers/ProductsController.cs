@@ -61,7 +61,7 @@ namespace AisleGuide.Controllers
             {
                 return BadRequest("Product ID mismatch");
             }
-            var result = await mediator.Send(command) as Result<bool>;
+            var result = await mediator.Send(command);
             
             if (!result.IsSuccess)
             {
@@ -74,7 +74,7 @@ namespace AisleGuide.Controllers
         public async Task<ActionResult<Result<bool>>> DeleteProduct(Guid id)
         {
             var command = new DeleteProductCommand { Id = id };
-            var result = await mediator.Send(command) as Result<bool>;
+            var result = await mediator.Send(command);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.ErrorMessage);

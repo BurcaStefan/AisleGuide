@@ -14,9 +14,18 @@ namespace Infrastructure.Repositories
             this.context = context;
         }
 
-        public Task<Result<bool>> DeleteAsync(Guid id)
+        public async Task<Result<bool>> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var review = await context.Reviews.FindAsync(id);
+
+            if (review == null)
+            {
+                return Result<bool>.Failure("Review not found!");
+            }
+
+            context.Reviews.Remove(review);
+            await context.SaveChangesAsync();
+            return Result<bool>.Success(true);
         }
         public async Task<Result<Guid>> AddAsync(Review review)
         {
@@ -53,9 +62,26 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
 
         }
-        public Task<Result<bool>> UpdateAsync(Review review)
+        public async Task<Result<bool>> UpdateAsync(Review review)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var existingReview = await context.Reviews.FindAsync(review.Id);
+                if (existingReview == null)
+                    return Result<bool>.Failure($"Review with ID {review.Id} not found.");
+
+                existingReview.Content = review.Content;
+                existingReview.Rating = review.Rating;
+
+
+                context.Reviews.Update(existingReview);
+                await context.SaveChangesAsync();
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(ex.Message);
+            }
         }
     }
 }

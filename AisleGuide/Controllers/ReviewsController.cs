@@ -40,5 +40,34 @@ namespace AisleGuide.Controllers
             return StatusCode(StatusCodes.Status201Created, result.Data);
         }
 
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<bool>> UpdateReview(Guid id,UpdateReviewCommand command)
+        {
+            if (id != command.Id)
+            {
+                return BadRequest("Product ID mismatch");
+            }
+
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            return Ok(result.Data);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<bool>> DeleteReview(Guid id)
+        {
+            var command = new DeleteReviewCommand { Id = id };
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return Ok(result.Data);
+        }
+
     }
 }
