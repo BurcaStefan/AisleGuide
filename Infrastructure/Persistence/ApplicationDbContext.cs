@@ -129,11 +129,13 @@ namespace Infrastructure.Persistence
 
                 entity.HasOne<User>()
                     .WithMany()
-                    .HasForeignKey(e => e.UserId);
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne<Product>()
                     .WithMany()
-                    .HasForeignKey(e => e.ProductId);
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Review>(entity => {
@@ -170,11 +172,13 @@ namespace Infrastructure.Persistence
 
                 entity.HasOne<User>()
                     .WithMany()
-                    .HasForeignKey(e => e.UserId);
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne<Product>()
                     .WithMany()
-                    .HasForeignKey(e => e.ProductId);
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<HistoryList>(entity => {
@@ -208,14 +212,17 @@ namespace Infrastructure.Persistence
 
                 entity.HasOne<User>()
                     .WithMany()
-                    .HasForeignKey(e => e.UserId);
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne<Product>()
                     .WithMany()
-                    .HasForeignKey(e => e.ProductId);
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<Image>(entity => {
+            modelBuilder.Entity<Image>(entity =>
+            {
                 entity.ToTable("images");
                 entity.HasKey(e => e.Id);
 
@@ -230,11 +237,31 @@ namespace Infrastructure.Persistence
                     .HasColumnType("uuid")
                     .IsRequired();
 
+                entity.Property(e => e.EntityType)
+                    .HasColumnName("entity_type")
+                    .HasMaxLength(10)
+                    .IsRequired();
+
                 entity.Property(e => e.FileExtension)
                     .HasColumnName("file_extension")
                     .HasMaxLength(10)
                     .IsRequired();
+
+                entity.HasOne<Product>()
+                    .WithMany()
+                    .HasForeignKey(e => e.EntityId)
+                    .HasConstraintName("FK_Image_Product")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired(false);
+
+                entity.HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(e => e.EntityId)
+                    .HasConstraintName("FK_Image_User")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired(false);
             });
+
         }
     }
 }

@@ -5,26 +5,13 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitailCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:PostgresExtension:uuid-ossp", ",,");
-
-            migrationBuilder.CreateTable(
-                name: "images",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
-                    entity_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    file_extension = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_images", x => x.id);
-                });
 
             migrationBuilder.CreateTable(
                 name: "products",
@@ -121,6 +108,32 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "images",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    entity_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    entity_type = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    file_extension = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_images", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Image_Product",
+                        column: x => x.entity_id,
+                        principalTable: "products",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Image_User",
+                        column: x => x.entity_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "reviews",
                 columns: table => new
                 {
@@ -162,6 +175,11 @@ namespace Infrastructure.Migrations
                 name: "IX_history_list_user_id",
                 table: "history_list",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_images_entity_id",
+                table: "images",
+                column: "entity_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_reviews_product_id",

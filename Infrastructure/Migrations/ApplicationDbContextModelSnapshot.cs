@@ -88,6 +88,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("entity_id");
 
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("entity_type");
+
                     b.Property<string>("FileExtension")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -95,6 +101,8 @@ namespace Infrastructure.Migrations
                         .HasColumnName("file_extension");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EntityId");
 
                     b.ToTable("images", (string)null);
                 });
@@ -296,6 +304,21 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.Image", b =>
+                {
+                    b.HasOne("Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("EntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_Image_Product");
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("EntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_Image_User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Review", b =>

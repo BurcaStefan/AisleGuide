@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Use_Cases.Commands;
 using Application.Use_Cases.Commands.FavoriteCommands;
+using Application.Use_Cases.Commands.HistoryListCommands;
 using Application.Use_Cases.Commands.ProductCommands;
 using AutoMapper;
 using Domain.Entities;
@@ -23,6 +24,12 @@ namespace Application.Utils
 
             CreateMap<Favorite, FavoriteDto>().ReverseMap();
             CreateMap<CreateFavoriteCommand, Favorite>().ReverseMap();
+            CreateMap<DeleteFavoriteCommand, Favorite>().ReverseMap();
+
+            CreateMap<HistoryList, HistoryListDto>().ReverseMap();
+            CreateMap<CreateHistoryListCommand, HistoryList>().ReverseMap();
+            CreateMap<UpdateHistoryListCommand, HistoryList>().ReverseMap();
+            CreateMap<DeleteHistoryListCommand, HistoryList>().ReverseMap();
         }
     }
 }
