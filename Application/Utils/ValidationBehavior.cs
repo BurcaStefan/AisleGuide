@@ -22,7 +22,7 @@ namespace Application
                 .ToList();
             if (failures.Count != 0)
             {
-                //throw new ValidationException(failures);
+                
                 if (failures.Count != 0)
                 {
                     var failuresString = string.Join(", ", failures);
