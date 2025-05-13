@@ -3,6 +3,7 @@ using Application.Use_Cases.Commands;
 using Application.Use_Cases.Commands.FavoriteCommands;
 using Application.Use_Cases.Commands.HistoryListCommands;
 using Application.Use_Cases.Commands.ProductCommands;
+using Application.Use_Cases.Commands.ReviewCommands;
 using AutoMapper;
 using Domain.Entities;
 
@@ -30,6 +31,9 @@ namespace Application.Utils
             CreateMap<CreateHistoryListCommand, HistoryList>().ReverseMap();
             CreateMap<UpdateHistoryListCommand, HistoryList>().ReverseMap();
             CreateMap<DeleteHistoryListCommand, HistoryList>().ReverseMap();
+
+            CreateMap<Review, ReviewDto>().ReverseMap();
+            CreateMap<CreateReviewCommand, Review>().ReverseMap();
         }
     }
 }

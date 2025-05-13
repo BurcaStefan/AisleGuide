@@ -9,11 +9,11 @@ namespace AisleGuide.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HistoryListController : ControllerBase
+    public class HistoryListsController : ControllerBase
     {
         private readonly IMediator mediator;
 
-        public HistoryListController(IMediator mediator)
+        public HistoryListsController(IMediator mediator)
         {
             this.mediator = mediator;
         }

@@ -45,6 +45,7 @@ namespace Infrastructure
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             services.AddScoped<IHistoryListRepository, HistoryListRepository>();
+            services.AddScoped<IReviewRepository, ReviewRepository>();
 
             return services;
         }
