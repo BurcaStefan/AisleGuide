@@ -3,12 +3,14 @@ using Application.Use_Cases.Commands.HistoryListCommands;
 using Application.Use_Cases.Queries.HistoryListQueries;
 using Domain.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AisleGuide.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class HistoryListsController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -19,6 +21,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<HistoryListDto>>> GetHistoryList(Guid userId, [FromQuery] int PageNumber = 1, [FromQuery] int PageSize = 10)
         {
             var query = new GetAllPaginatedHistoryListByUserIdQuery
@@ -37,6 +40,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<HistoryListDto>> GetHistoryListById(Guid id)
         {
             var query = new GetHistoryListByIdQuery { Id = id };

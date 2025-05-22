@@ -3,12 +3,14 @@ using Application.Use_Cases.Commands.FavoriteCommands;
 using Application.Use_Cases.Queries.FavoriteQueries;
 using Domain.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AisleGuide.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class FavoritesController : ControllerBase
     {
         private readonly IMediator mediator;

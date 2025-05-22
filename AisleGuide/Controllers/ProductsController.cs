@@ -3,13 +3,14 @@ using Application.Use_Cases.Commands.ProductCommands;
 using Application.Use_Cases.Queries.ProductQueries;
 using Domain.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AisleGuide.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -20,6 +21,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<ProductDto>>> GetAllProducts()
         {
             var query = new GetAllProductsQuery();
@@ -83,6 +85,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpGet("paginated")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProductsPaginated([FromQuery] GetProductsPaginationByFilterQuery query)
         {
             var result = await mediator.Send(query);

@@ -90,7 +90,10 @@ namespace Infrastructure.Repositories
             var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]!);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userInDb.Id.ToString()) }),
+                Subject = new ClaimsIdentity(new[] { 
+                    new Claim(ClaimTypes.Name, userInDb.Id.ToString()),
+                    new Claim("IsAdmin", userInDb.IsAdmin.ToString())
+                }),
                 Expires = DateTime.UtcNow.AddHours(3),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

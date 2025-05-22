@@ -2,12 +2,14 @@
 using Application.Use_Cases.Commands.ReviewCommands;
 using Application.Use_Cases.Queries.ReviewQueries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AisleGuide.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReviewsController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -17,6 +19,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpGet("{productId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviewsByProductId(Guid productId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
             var query = new GetAllReviewByProductIdQuery

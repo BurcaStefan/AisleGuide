@@ -3,12 +3,14 @@ using Application.Use_Cases.Commands;
 using Application.Use_Cases.Queries;
 using Domain.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AisleGuide.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -18,6 +20,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<UserDto>>> GetAllUsers()
         {
             var query = new GetAllUsersQuery();
@@ -31,6 +34,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpGet("{id:guid}")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDto>> GetUserById(Guid id)
         {
             var query = new GetUserByIdQuery { Id = id };
@@ -44,6 +48,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<Result<Guid>>> CreateUser(CreateUserCommand command)
         {
             var result = await mediator.Send(command);
@@ -84,6 +89,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<ActionResult<string>> Login(LoginUserCommand command)
         {
             var result = await mediator.Send(command);
