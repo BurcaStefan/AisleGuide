@@ -46,32 +46,28 @@ export class LoginComponent {
     this.successMessage = '';
 
     this.userService.login(email, password).subscribe({
-      next: (token) => {
+      next: (response) => {
         this.successMessage = 'Login successful!';
         this.loading = false;
-        localStorage.setItem('token', token);
-        console.log('Token:', token);
+        localStorage.setItem('token', response.AccessToken);
 
-        const userId = this.userService.getUserIdFromToken(token);
+        const payload = JSON.parse(atob(response.AccessToken.split('.')[1]));
+        const userId = payload.unique_name;
+        const isAdmin = payload.IsAdmin === 'True' || payload.IsAdmin === true;
 
-        this.userService.getUserById(userId).subscribe({
-          next: (user) => {
-            if (user.isAdmin) {
-              setTimeout(() => {
-                this.router.navigate(['/admin-home']);
-              }, 1000);
-            } else {
-              setTimeout(() => {
-                this.router.navigate(['/home']);
-              }, 1000);
-            }
-          },
-        });
+        if (isAdmin) {
+          setTimeout(() => {
+            this.router.navigate(['/admin-home']);
+          }, 1000);
+        } else {
+          setTimeout(() => {
+            this.router.navigate(['/home']);
+          }, 1000);
+        }
       },
       error: (error) => {
         console.error('Login failed:', error);
-        this.errorMessage =
-          error.error || 'Login failed. Please check your credentials.';
+        this.errorMessage = 'Login failed. Please check your credentials.';
         this.loading = false;
       },
     });

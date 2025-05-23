@@ -1,4 +1,5 @@
-﻿using Domain.Repositories;
+﻿using Domain.Common;
+using Domain.Repositories;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,6 +47,8 @@ namespace Infrastructure
             services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             services.AddScoped<IHistoryListRepository, HistoryListRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
+            services.AddScoped<AccessTokenGenerator>();
+            services.AddScoped<RefreshTokenGenerator>();
 
             return services;
         }

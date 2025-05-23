@@ -20,35 +20,6 @@ builder.Services.AddCors(options =>
 
 
 
-////------------------------------------------------------------------------------------------------
-//// Configure JWT Authentication
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuerSigningKey = true,
-//            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!)),
-//            ValidateIssuer = false,
-//            ValidateAudience = false,
-//            ClockSkew = TimeSpan.Zero
-//        };
-//    });
-
-//// Add Authorization policies
-//builder.Services.AddAuthorization(options =>
-//{
-//    // Policy for admin users
-//    options.AddPolicy("RequireAdmin", policy =>
-//        policy.RequireClaim("IsAdmin", "True"));
-
-//    // No specific policy needed for user-specific resources
-//    // We'll handle that in controllers or action filters
-//});
-////-----------------------------------------------------------------------------------------------
-
-
-
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthorization();
@@ -64,9 +35,6 @@ builder.Services.AddSwaggerGen(c =>
         Title = "AisleGuide",
         Version = "v1",
     });
-
-
-    //----------------------------------------------------------------------------------------------
 
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {

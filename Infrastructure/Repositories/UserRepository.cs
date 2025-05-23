@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace Infrastructure.Repositories
 {
@@ -15,11 +16,21 @@ namespace Infrastructure.Repositories
     {
         private readonly ApplicationDbContext context;
         private readonly IConfiguration configuration;
-        public UserRepository(ApplicationDbContext context, IConfiguration configuration)
+        private readonly AccessTokenGenerator accessTokenGenerator;
+        private readonly RefreshTokenGenerator refreshTokenGenerator;
+
+        public UserRepository(
+            ApplicationDbContext context,
+            IConfiguration configuration,
+            AccessTokenGenerator accessTokenGenerator,
+            RefreshTokenGenerator refreshTokenGenerator)
         {
             this.context = context;
             this.configuration = configuration;
+            this.accessTokenGenerator = accessTokenGenerator;
+            this.refreshTokenGenerator = refreshTokenGenerator;
         }
+
         public async Task<Result<Guid>> AddAsync(User user)
         {
             try
@@ -68,13 +79,24 @@ namespace Infrastructure.Repositories
         {
             try
             {
+                var existingUser = await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == user.Id);
+                if (existingUser == null)
+                {
+                    return Result<bool>.Failure("User not found");
+                }
+
+                if (user.Password != existingUser.Password)
+                {
+                    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+                }
+
                 context.Entry(user).State = EntityState.Modified;
                 await context.SaveChangesAsync();
                 return Result<bool>.Success(true);
             }
             catch (Exception e)
             {
-                return Result<bool>.Failure(e.InnerException!.ToString());
+                return Result<bool>.Failure(e.InnerException?.ToString() ?? e.Message);
             }
         }
 
@@ -86,21 +108,76 @@ namespace Infrastructure.Repositories
                 return Result<string>.Failure("Invalid credentials");
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]!);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var accessToken = accessTokenGenerator.Generate(userInDb);
+            var refreshToken = refreshTokenGenerator.Generate();
+
+            var refreshTokenEntity = new RefreshToken
             {
-                Subject = new ClaimsIdentity(new[] { 
-                    new Claim(ClaimTypes.Name, userInDb.Id.ToString()),
-                    new Claim("IsAdmin", userInDb.IsAdmin.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddHours(3),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Token = refreshToken,
+                UserId = userInDb.Id,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            await context.RefreshTokens.AddAsync(refreshTokenEntity);
+            await context.SaveChangesAsync();
 
-            return Result<string>.Success(tokenHandler.WriteToken(token));
+            var response = JsonSerializer.Serialize(new
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            });
+
+            return Result<string>.Success(response);
+        }
+
+
+        public async Task<Result<string>> RefreshTokenAsync(string token)
+        {
+            var refreshToken = await context.RefreshTokens
+                .Include(rt => rt.User)
+                .FirstOrDefaultAsync(rt => rt.Token == token);
+
+            if (refreshToken == null)
+            {
+                return Result<string>.Failure("Invalid refresh token");
+            }
+
+            if (refreshToken.ExpiresAt < DateTime.UtcNow || refreshToken.IsRevoked)
+            {
+                return Result<string>.Failure("Refresh token expired or revoked");
+            }
+
+            var user = refreshToken.User;
+            if (user == null)
+            {
+                return Result<string>.Failure("User not found");
+            }
+
+            refreshToken.IsRevoked = true;
+            context.RefreshTokens.Update(refreshToken);
+
+            var accessToken = accessTokenGenerator.Generate(user);
+            var newRefreshToken = refreshTokenGenerator.Generate();
+
+            var refreshTokenEntity = new RefreshToken
+            {
+                Token = newRefreshToken,
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            };
+
+            await context.RefreshTokens.AddAsync(refreshTokenEntity);
+            await context.SaveChangesAsync();
+
+            var response = JsonSerializer.Serialize(new
+            {
+                AccessToken = accessToken,
+                RefreshToken = newRefreshToken
+            });
+
+            return Result<string>.Success(response);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Infrastructure.Persistence
         public DbSet<Review> Reviews { get; set; }
         public DbSet<HistoryList> HistoryLists { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,6 +49,7 @@ namespace Infrastructure.Persistence
                     .HasColumnName("is_admin")
                     .IsRequired()
                     .HasDefaultValue(false);
+
             });
 
             modelBuilder.Entity<Product>(entity => {
@@ -260,6 +263,46 @@ namespace Infrastructure.Persistence
                     .HasConstraintName("FK_Image_User")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired(false);
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity => {
+                entity.ToTable("refresh_tokens");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasColumnType("uuid")
+                    .HasDefaultValueSql("uuid_generate_v4()")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Token)
+                    .HasColumnName("token")
+                    .IsRequired();
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnName("created_at")
+                    .IsRequired()
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(e => e.ExpiresAt)
+                    .HasColumnName("expires_at")
+                    .IsRequired();
+
+                entity.Property(e => e.IsRevoked)
+                    .HasColumnName("is_revoked")
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                entity.Property(e => e.UserId)
+                    .HasColumnName("user_id")
+                    .HasColumnType("uuid")
+                    .IsRequired();
+
+                entity.HasOne(rt => rt.User)
+                    .WithMany(u => u.RefreshTokens)
+                    .HasForeignKey(rt => rt.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
             });
 
         }

@@ -11,11 +11,13 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  public login(email: string, password: string): Observable<string> {
-    return this.http.post(
+  public login(
+    email: string,
+    password: string
+  ): Observable<{ AccessToken: string; RefreshToken: string }> {
+    return this.http.post<{ AccessToken: string; RefreshToken: string }>(
       `${this.userUrl}/login`,
-      { email, password },
-      { responseType: 'text' }
+      { email, password }
     );
   }
 
@@ -37,6 +39,15 @@ export class UserService {
 
   public deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.userUrl}/${id}`);
+  }
+
+  public refreshToken(
+    token: string
+  ): Observable<{ AccessToken: string; RefreshToken: string }> {
+    return this.http.post<{ AccessToken: string; RefreshToken: string }>(
+      `${this.userUrl}/refresh`,
+      { token }
+    );
   }
 
   public getUserIdFromToken(token: string): string {

@@ -11,5 +11,7 @@ namespace Domain.Repositories
         Task<Result<bool>> UpdateAsync(User user);
         Task<Result<bool>> DeleteAsync(Guid id);
         Task<Result<string>> LoginAsync(User user);
+        Task<Result<string>> RefreshTokenAsync(string token);
+
     }
 }
