@@ -1,0 +1,83 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden !important;
+  font-family: Arial, sans-serif;
+  position: fixed;
+}
+
+body {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.background {
+  width: 50%;
+  height: 100%;
+  border-right: 6px solid #9ad6ff;
+  background-color: #9ad6ff;
+  background-image: url("/assets/login-background.png");
+  background-size: cover;
+  background-position: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+.logo-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 5%;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  justify-content: center;
+}
+
+.register-container {
+  width: 50%;
+  height: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  margin-left: 50%;
+}
+
+.register-form {
+  padding: 24px;
+  border: 6px solid #9ad6ff;
+  border-radius: 24px;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  max-width: 90%;
+  margin-bottom: 25%;
+
+  h1 {
+    margin-bottom: 2rem;
+    color: #333;
+    font-size: 2.5rem;
+    text-align: center;
+  }
+
+  app-register {
+    display: block;
+    width: 100%;
+    font-size: 1.2rem;
+  }
+}
