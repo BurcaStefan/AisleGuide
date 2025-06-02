@@ -1,0 +1,158 @@
+.client-header {
+  background-color: #4285f4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px 0;
+  position: sticky;
+  top: 10px;
+  z-index: 1000;
+  border-radius: 20px;
+  margin: 10px 15px 0;
+  width: calc(100% - 30px);
+  left: 0;
+  right: 0;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+}
+
+.logo-image {
+  height: 52px;
+  width: auto;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+
+  li {
+    padding: 10px 8px;
+
+    a {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #0077b6;
+        color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      &.active {
+        background-color: rgba(255, 255, 255, 0.15);
+      }
+    }
+  }
+}
+
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 25px;
+  cursor: pointer;
+  margin-right: 15px;
+
+  .bar {
+    width: 100%;
+    height: 3px;
+    background-color: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+}
+
+@media (max-width: 945px) {
+  .container {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .logo {
+    margin-left: 10px;
+    margin-bottom: 0;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
+  .navigation {
+    position: absolute;
+    top: 74px;
+    right: 10px;
+    margin-right: 0px;
+    background-color: #4285f4;
+    border-radius: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    overflow: hidden;
+
+    &.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+
+  .nav-links {
+    flex-direction: column;
+    padding: 10px 0;
+    width: 100%;
+
+    li {
+      width: 100%;
+      padding: 0;
+
+      a {
+        width: 100%;
+        display: block;
+        box-sizing: border-box;
+        text-align: left;
+        padding: 12px 20px;
+        border-radius: 0;
+
+        &:hover {
+          background-color: #0077b6;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
