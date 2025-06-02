@@ -1,0 +1,87 @@
+.admin-header {
+  background-color: #4285f4; // Culoarea cerută
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0; // Eliminat padding-ul standard
+  max-width: 100%; // Folosește tot spațiul disponibil
+  margin: 0; // Eliminat marginile
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin-left: 10px; // Doar câțiva pixeli de spațiu
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.logo-image {
+  height: 40px;
+  width: auto;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  margin-right: 10px; // Doar câțiva pixeli de spațiu
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+
+  li {
+    margin-left: 20px;
+
+    a {
+      text-decoration: none;
+      color: white; // Text alb pentru contrast pe fundalul albastru
+      font-weight: 500;
+      padding: 10px 5px;
+      transition: all 0.2s;
+
+      &:hover {
+        color: #f0f0f0;
+        text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+      }
+
+      &.active {
+        color: white;
+        border-bottom: 2px solid white;
+      }
+    }
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .logo {
+    margin-left: 0;
+    margin-bottom: 10px;
+  }
+
+  .navigation {
+    margin-right: 0;
+    width: 100%;
+    justify-content: center;
+  }
+}
