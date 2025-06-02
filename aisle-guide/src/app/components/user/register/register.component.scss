@@ -1,0 +1,79 @@
+label {
+  font-size: 1rem;
+  color: black;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.8rem;
+}
+
+.success-message {
+  color: green;
+  font-size: 0.8rem;
+}
+
+.form-control {
+  height: 20px;
+  padding: 4px 4px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 1px solid #ced4da;
+  width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.btn-primary,
+.btn-register {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 25px;
+  border: none;
+  background-color: #4285f4;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  min-width: 120px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    background-color: #a0b4e0;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+@media (max-width: 479px) {
+  .btn-primary,
+  .btn-register {
+    padding: 8px 16px;
+    font-size: 14px;
+    min-width: 90px;
+    margin-right: 6px;
+  }
+
+  .form-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
