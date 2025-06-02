@@ -1,10 +1,19 @@
 import { Component } from '@angular/core';
 import { AdminHeaderComponent } from '../../components/layout/admin-header/admin-header.component';
 import { AdminFooterComponent } from '../../components/layout/admin-footer/admin-footer.component';
+import { ProductService } from '../../services/product/product.service';
+import { Product } from '../../models/product.model';
+import { CommonModule } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-admin-home-page',
-  imports: [AdminHeaderComponent, AdminFooterComponent],
+  imports: [
+    AdminHeaderComponent,
+    AdminFooterComponent,
+    CommonModule,
+    CurrencyPipe,
+  ],
   templateUrl: './admin-home-page.component.html',
   styleUrl: './admin-home-page.component.scss',
 })
@@ -26,4 +35,35 @@ export class AdminHomePageComponent {
     ['➔', '', '', '', '', '', '', '', '', '', '', '', 'D1'],
     ['', '', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'B1', 'B2', 'B3', ''],
   ];
+
+  products: Product[] = [];
+  selectedUnit: string = '';
+  isLoading: boolean = false;
+  error: string | null = null;
+
+  constructor(private productService: ProductService) {}
+
+  loadProductsByUnit(unitCode: string): void {
+    this.isLoading = true;
+    this.selectedUnit = unitCode;
+    this.error = null;
+
+    const queryParams = {
+      pageNumber: 1,
+      pageSize: 5,
+      shelvingUnit: unitCode,
+    };
+
+    this.productService.getProductsPaginatedByFilter(queryParams).subscribe({
+      next: (response: any) => {
+        this.products = response.data || [];
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading products:', err);
+        this.error = 'Unable to load products. Please try again.';
+        this.isLoading = false;
+      },
+    });
+  }
 }

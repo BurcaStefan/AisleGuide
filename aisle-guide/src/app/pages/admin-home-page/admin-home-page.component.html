@@ -2,6 +2,53 @@
 
 <div class="admin-dashboard">
     <div class="left-panel">
+        <div class="products-container">
+            <h2 class="panel-title">
+                @if (selectedUnit) {
+                Products in unit {{ selectedUnit }}
+                } @else {
+                Select a unit from the map
+                }
+            </h2>
+
+            @if (isLoading) {
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading products...</p>
+            </div>
+            } @else if (error) {
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>{{ error }}</p>
+            </div>
+            } @else if (products.length === 0 && selectedUnit) {
+            <div class="no-products">
+                <p>No products found in this unit.</p>
+            </div>
+            } @else if (products.length > 0) {
+            <div class="product-list">
+                @for (product of products; track product.id) {
+                <div class="product-card">
+                    <div class="rating">
+                        <span class="stars">★</span>
+                        <span class="value">{{ product.averageRating || 'N/A' }}</span>
+                    </div>
+
+                    <div class="card-left">
+                        <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80"
+                            alt="{{ product.name }}" class="product-image">
+                    </div>
+
+                    <div class="card-right">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <div class="price">{{ product.price | currency:'RON':'symbol':'1.2-2' }}</div>
+                        <button class="details-button">View Details</button>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
     </div>
 
     <div class="right-panel">
@@ -14,12 +61,13 @@
                         <td>
                             @if (row === 10 && col === 0) {
                             <div class="arrow-cell">{{ gridData[row][col] }}</div>
-                            } @else if ((row === 1 || row===4) && col === 0) {
+                            } @else if ((row === 1 || row === 4) && col === 0) {
                             <div class="register-cell">
                                 <i class="fas fa-cash-register"></i>
                             </div>
                             } @else if (gridData[row][col]) {
-                            <button class="cell-button">{{ gridData[row][col] }}</button>
+                            <button class="cell-button" (click)="loadProductsByUnit(gridData[row][col])">{{
+                                gridData[row][col] }}</button>
                             }
                         </td>
                         }
