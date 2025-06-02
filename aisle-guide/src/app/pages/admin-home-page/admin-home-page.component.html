@@ -1,5 +1,34 @@
 <app-admin-header></app-admin-header>
 
-<p>admin-home-page works!</p>
+<div class="admin-dashboard">
+    <div class="left-panel">
+    </div>
+
+    <div class="right-panel">
+        <div class="table-container">
+            <table class="grid-table">
+                <tbody>
+                    @for (row of rowIndices; track row) {
+                    <tr>
+                        @for (col of colIndices; track col) {
+                        <td>
+                            @if (row === 10 && col === 0) {
+                            <div class="arrow-cell">{{ gridData[row][col] }}</div>
+                            } @else if ((row === 1 || row===4) && col === 0) {
+                            <div class="register-cell">
+                                <i class="fas fa-cash-register"></i>
+                            </div>
+                            } @else if (gridData[row][col]) {
+                            <button class="cell-button">{{ gridData[row][col] }}</button>
+                            }
+                        </td>
+                        }
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <app-admin-footer></app-admin-footer>

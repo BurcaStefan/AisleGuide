@@ -1,0 +1,117 @@
+.admin-dashboard {
+  display: flex;
+  min-height: calc(100vh - 160px);
+  background-color: #4285f4;
+  margin: 20px 15px;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.left-panel {
+  flex: 1;
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-right: 10px;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin-left: 10px;
+  background-color: transparent;
+}
+
+.table-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  width: 75%;
+  max-width: 550px;
+  aspect-ratio: 1/1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.grid-table {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.grid-table td {
+  border: 1px solid #ccc;
+  width: 7.69%;
+  position: relative;
+  padding: 0;
+
+  &::before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+  }
+}
+
+.cell-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: #4285f4;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  transition: background-color 0.2s, transform 0.1s;
+
+  &:hover {
+    background-color: #0077b6;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.arrow-cell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  color: black;
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-cell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 1.2rem;
+    color: #333;
+  }
+}
