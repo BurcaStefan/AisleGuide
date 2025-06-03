@@ -11,7 +11,7 @@ export interface Product {
   calories: number;
   protein: number;
   carbohydrates: number;
-  sugar: number;
+  sugars: number;
   fat: number;
   saturatedFat: number;
   fiber: number;

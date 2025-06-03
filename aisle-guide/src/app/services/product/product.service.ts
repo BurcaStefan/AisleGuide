@@ -24,7 +24,7 @@ export class ProductService {
     return this.http.get<Product>(`${this.productUrl}/${id}`);
   }
 
-  public updateProduct(id: string, product: any): Observable<boolean> {
+  public updateProduct(id: string, product: Product): Observable<any> {
     const token = localStorage.getItem('token');
 
     const headers = new HttpHeaders({
@@ -32,13 +32,20 @@ export class ProductService {
       Authorization: `Bearer ${token}`,
     });
 
-    return this.http.put<boolean>(`${this.productUrl}/${id}`, product, {
-      headers,
-    });
+    return this.http.put(`${this.productUrl}/${id}`, product, { headers });
   }
 
   public deleteProduct(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.productUrl}/${id}`);
+    const token = localStorage.getItem('token');
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.delete<void>(`${this.productUrl}/${id}`, {
+      headers,
+    });
   }
 
   public getProductsPaginatedByFilter(queryParams: any): Observable<Product[]> {

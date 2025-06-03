@@ -34,6 +34,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpGet("{id:guid}")]
+        [AllowAnonymous]
         public async Task<ActionResult<ProductDto>> GetProductById(Guid id)
         {
             var query = new GetProductByIdQuery { Id = id };

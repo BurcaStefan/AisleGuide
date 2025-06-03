@@ -116,7 +116,7 @@ export class AdminHomePageComponent {
       return;
     }
 
-    const updatedProduct = { ...productToUpdate, shelvingUnit: null };
+    const updatedProduct = { ...productToUpdate, shelvingUnit: '' };
 
     this.isLoading = true;
 
@@ -147,6 +147,6 @@ export class AdminHomePageComponent {
   }
 
   viewProductDetails(productId: string): void {
-    this.router.navigate(['/admin/product-details', productId]);
+    this.router.navigate(['/details', productId]);
   }
 }

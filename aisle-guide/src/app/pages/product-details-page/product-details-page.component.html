@@ -1,0 +1,226 @@
+<div class="details-container">
+    <div class="details-panel">
+        <button class="back-button" (click)="goBack()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+
+        <h2 class="panel-title">Product Details</h2>
+
+        @if (isLoading) {
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading product details...</p>
+        </div>
+        } @else if (error) {
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>{{ error }}</p>
+        </div>
+        } @else if (product) {
+        <div class="product-details">
+            <div class="product-image-container">
+                <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80"
+                    alt="{{ product.name }}" class="product-image">
+            </div>
+
+            <div class="product-info-container">
+                <div class="product-info">
+                    <h3 class="product-name">
+                        @if (!isEditing) {
+                        {{ product.name }}
+                        } @else {
+                        <input type="text" class="edit-in-place" [(ngModel)]="editedProduct!.name">
+                        }
+                    </h3>
+
+                    <div class="rating-container">
+                        <span class="rating-stars">
+                            @for (star of [1,2,3,4,5]; track star) {
+                            <i class="fas fa-star" [class.filled]="star <= (product.averageRating)"></i>
+                            }
+                        </span>
+                        <span class="rating-value">{{ product.averageRating | number:'1.1-1' }}</span>
+                    </div>
+
+                    <p class="product-price">
+                        @if (!isEditing) {
+                        RON&nbsp;{{ product.price | number:'1.2-2' }}
+                        } @else {
+                        <input type="number" class="edit-in-place price-input" [(ngModel)]="editedProduct!.price"
+                            step="0.01">
+                        }
+                    </p>
+
+                    <div class="info-row">
+                        <span class="label">Category:</span>
+                        <span class="value">
+                            @if (!isEditing) {
+                            {{ product.category }}
+                            } @else {
+                            <input type="text" class="edit-in-place" [(ngModel)]="editedProduct!.category">
+                            }
+                        </span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Location:</span>
+                        <span class="value">
+                            @if (!isEditing) {
+                            {{ product.shelvingUnit || 'Not assigned' }}
+                            } @else {
+                            <input type="text" class="edit-in-place" [(ngModel)]="editedProduct!.shelvingUnit">
+                            }
+                        </span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Barcode:</span>
+                        <span class="value">
+                            @if (!isEditing) {
+                            {{ product.isbn }}
+                            } @else {
+                            <input type="text" class="edit-in-place" [(ngModel)]="editedProduct!.isbn">
+                            }
+                        </span>
+                    </div>
+
+                    <div class="button-container">
+                        @if (!isEditing && isAdmin) {
+                        <button class="edit-button" (click)="editProduct()">
+                            <i class="fas fa-edit"></i> Edit Product
+                        </button>
+                        <button class="delete-button" (click)="deleteProduct()">
+                            <i class="fas fa-trash"></i> Delete Product
+                        </button>
+                        } @else if (isEditing) {
+                        <button class="save-button" (click)="saveChanges()">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button class="cancel-button" (click)="cancelEdit()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="nutrition-section">
+                    <h4>Nutritional Information</h4>
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Calories:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.calories}} kcal
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.calories"> kcal
+                                }
+                            </span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Protein:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.protein }}g
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.protein"
+                                    step="0.1">g
+                                }
+                            </span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Carbohydrates:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.carbohydrates}}g
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.carbohydrates"
+                                    step="0.1">g
+                                }
+                            </span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Sugar:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.sugars}}g
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.sugars"
+                                    step="0.1">g
+                                }
+                            </span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Fat:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.fat }}g
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.fat" step="0.1">g
+                                }
+                            </span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Saturated Fat:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.saturatedFat }}g
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.saturatedFat"
+                                    step="0.1">g
+                                }
+                            </span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Fiber:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.fiber }}g
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.fiber"
+                                    step="0.1">g
+                                }
+                            </span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Salt:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.salt }}g
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.salt"
+                                    step="0.1">g
+                                }
+                            </span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Cholesterol:</span>
+                            <span class="nutrition-value">
+                                @if (!isEditing) {
+                                {{ product.cholesterol }}mg
+                                } @else {
+                                <input type="number" class="edit-in-place" [(ngModel)]="editedProduct!.cholesterol"
+                                    step="0.1">mg
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="description-section">
+                <h4>Description</h4>
+                @if (!isEditing) {
+                <p class="description">{{ product.description }}</p>
+                } @else {
+                <textarea class="edit-in-place description-textarea" [(ngModel)]="editedProduct!.description"
+                    rows="3"></textarea>
+                }
+            </div>
+        </div>
+        } @else {
+        <div class="not-found-message">
+            <p>Product not found</p>
+        </div>
+        }
+    </div>
+</div>
