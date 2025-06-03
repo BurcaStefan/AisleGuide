@@ -75,10 +75,10 @@
 .rating-stars {
   color: #ddd;
   margin-right: 10px;
-}
 
-.rating-stars .filled {
-  color: #ffc107;
+  .filled {
+    color: #ffc107;
+  }
 }
 
 .rating-value {
@@ -96,12 +96,14 @@
 .info-row {
   display: flex;
   margin-bottom: 10px;
+  align-items: center;
 }
 
 .label {
-  flex: 0 0 120px;
+  flex: 0 0 85px;
   font-weight: 500;
   color: #555;
+  margin-right: 10px;
 }
 
 .value {
@@ -179,86 +181,65 @@
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.05);
+  }
+
+  i {
+    font-size: 1.5rem;
+    color: #444;
+  }
 }
 
-.back-button:hover {
-  background-color: #e0e0e0;
-  transform: scale(1.05);
-}
-
-.back-button i {
-  font-size: 1.5rem;
-  color: #444;
+%button-base {
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
 }
 
 .edit-button {
+  @extend %button-base;
   background-color: #4285f4;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
 
-.edit-button:hover {
-  background-color: #3367d6;
+  &:hover {
+    background-color: #3367d6;
+  }
 }
 
 .delete-button {
+  @extend %button-base;
   background-color: #dc3545;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
 
-.delete-button:hover {
-  background-color: #c82333;
+  &:hover {
+    background-color: #c82333;
+  }
 }
 
 .save-button {
+  @extend %button-base;
   background-color: #28a745;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
 
-.save-button:hover {
-  background-color: #218838;
+  &:hover {
+    background-color: #218838;
+  }
 }
 
 .cancel-button {
+  @extend %button-base;
   background-color: #6c757d;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
 
-.cancel-button:hover {
-  background-color: #5a6268;
+  &:hover {
+    background-color: #5a6268;
+  }
 }
 
 .edit-in-place {
@@ -271,16 +252,16 @@
   color: inherit;
   display: inline-block;
   width: auto;
+
+  &.price-input {
+    font-weight: bold;
+    color: #4285f4;
+    width: 80px;
+  }
 }
 
 input.edit-in-place {
   max-width: 80px;
-}
-
-.price-input {
-  font-weight: bold;
-  color: #4285f4;
-  width: 80px;
 }
 
 .description-textarea {
@@ -294,15 +275,15 @@ input.edit-in-place {
   flex-direction: column;
   align-items: center;
   padding: 40px 0;
-}
 
-.spinner {
-  border: 4px solid rgba(66, 133, 244, 0.2);
-  border-top: 4px solid #4285f4;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
+  .spinner {
+    border: 4px solid rgba(66, 133, 244, 0.2);
+    border-top: 4px solid #4285f4;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
 }
 
 @keyframes spin {
@@ -320,11 +301,11 @@ input.edit-in-place {
   justify-content: center;
   color: #d32f2f;
   padding: 20px;
-}
 
-.error-message i {
-  font-size: 24px;
-  margin-right: 10px;
+  i {
+    font-size: 24px;
+    margin-right: 10px;
+  }
 }
 
 .not-found-message {
@@ -332,80 +313,6 @@ input.edit-in-place {
   padding: 40px;
   color: #666;
   font-size: 1.2rem;
-}
-
-@media (max-width: 992px) {
-  .product-info-container {
-    flex-direction: column;
-  }
-
-  .nutrition-section {
-    width: 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  .details-panel {
-    padding: 20px 15px;
-  }
-
-  .product-details {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .product-image-container {
-    width: 100%;
-    max-width: 250px;
-  }
-
-  .product-info {
-    width: 100%;
-  }
-
-  .product-name {
-    font-size: 1.5rem;
-  }
-
-  .product-price {
-    font-size: 1.4rem;
-  }
-
-  .back-button {
-    top: 10px;
-    left: 10px;
-    width: 35px;
-    height: 35px;
-  }
-}
-
-@media (max-width: 480px) {
-  .details-panel {
-    width: 95%;
-    padding: 15px 10px;
-  }
-
-  .panel-title {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-  }
-
-  .info-row {
-    flex-direction: column;
-  }
-
-  .label {
-    flex: 0 0 auto;
-    margin-bottom: 4px;
-  }
-
-  .button-container {
-    flex-direction: column;
-  }
-
-  .button-container button {
-    width: 100%;
-  }
 }
 
 .reviews-section {
@@ -431,15 +338,28 @@ input.edit-in-place {
 .review-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.reviewer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.reviewer-name {
+  font-weight: 700;
+  color: #333;
+  font-size: 0.95rem;
 }
 
 .review-rating {
   color: #ddd;
-}
 
-.review-rating .filled {
-  color: #ffc107;
+  .filled {
+    color: #ffc107;
+  }
 }
 
 .review-date {
@@ -450,6 +370,53 @@ input.edit-in-place {
 .review-content {
   line-height: 1.5;
   color: #333;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  margin-bottom: 10px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.delete-review-button,
+.edit-review-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+.delete-review-button {
+  background-color: #f8d7da;
+  color: #721c24;
+
+  &:hover {
+    background-color: #f5c6cb;
+  }
+}
+
+.edit-review-button {
+  background-color: #e2f0fb;
+  color: #0c5460;
+
+  &:hover {
+    background-color: #d1ecf1;
+  }
 }
 
 .no-reviews {
@@ -458,48 +425,6 @@ input.edit-in-place {
   color: #666;
   background-color: #f8f8f8;
   border-radius: 8px;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  margin-top: 20px;
-}
-
-.pagination-button {
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
-  font-size: 0.95rem;
-  min-width: 120px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-
-  &:hover:not([disabled]) {
-    background-color: #3367d6;
-  }
-
-  &:disabled {
-    background-color: #a4c5fd;
-    cursor: not-allowed;
-  }
-
-  i {
-    margin: 0 5px;
-  }
-}
-
-.pagination-button.active {
-  background-color: #4285f4;
-  color: white;
-  border-color: #4285f4;
 }
 
 .pagination-controls {
@@ -513,6 +438,10 @@ input.edit-in-place {
 .prev-button {
   grid-column: 1;
   justify-self: start;
+
+  i {
+    margin-right: 3px;
+  }
 }
 
 .page-indicator {
@@ -527,6 +456,10 @@ input.edit-in-place {
 .next-button {
   grid-column: 3;
   justify-self: end;
+
+  i {
+    margin-left: 3px;
+  }
 }
 
 .pagination-button {
@@ -555,34 +488,303 @@ input.edit-in-place {
   }
 }
 
-.prev-button i {
-  margin-right: 3px;
+@media (max-width: 479px) {
+  .details-panel {
+    width: 98%;
+    padding: 15px 8px;
+  }
+
+  .panel-title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .product-image-container {
+    max-width: 200px;
+    margin: 0 auto 15px;
+  }
+
+  .info-row {
+    flex-direction: row;
+    margin-bottom: 6px;
+  }
+
+  .label {
+    margin-bottom: 0;
+    margin-right: 8px;
+    min-width: 80px;
+    max-width: 80px;
+  }
+
+  .value {
+    text-align: right;
+  }
+
+  .pagination-button {
+    min-width: 90px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .button-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    button {
+      width: auto;
+      margin: 5px;
+    }
+  }
+
+  .nutrition-section {
+    margin-top: 10px;
+
+    h4 {
+      margin-bottom: 5px;
+    }
+  }
+
+  .nutrition-grid {
+    gap: 3px;
+  }
+
+  .nutrition-item {
+    margin-bottom: 2px;
+  }
+
+  .description-section {
+    margin-top: 15px;
+
+    h4 {
+      margin-bottom: 5px;
+    }
+  }
+
+  .reviews-section {
+    margin-top: 15px;
+    padding-top: 10px;
+  }
+
+  .pagination-controls {
+    margin-bottom: 10px;
+  }
+
+  .page-indicator {
+    font-size: 0.9rem;
+    padding: 0 5px;
+  }
 }
 
-.next-button i {
-  margin-left: 3px;
+@media (min-width: 480px) and (max-width: 767px) {
+  .details-panel {
+    padding: 20px 15px;
+  }
+
+  .product-details {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .product-image-container {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .product-info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .product-name,
+  .product-price {
+    text-align: center;
+  }
+
+  .product-name {
+    font-size: 1.5rem;
+  }
+
+  .product-price {
+    font-size: 1.4rem;
+  }
+
+  .nutrition-section,
+  .description-section {
+    width: 90%;
+    margin: 0 auto;
+  }
+
+  .nutrition-grid {
+    max-width: 350px;
+    margin: 0 auto;
+  }
+
+  .button-container {
+    justify-content: center;
+    width: 90%;
+    margin: 15px auto 0;
+  }
+
+  .description-section {
+    text-align: center;
+    margin: 20px auto 0;
+
+    .description {
+      text-align: left;
+    }
+  }
+
+  .back-button {
+    top: 10px;
+    left: 10px;
+    width: 35px;
+    height: 35px;
+  }
 }
 
-.reviewer-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+@media (min-width: 768px) and (max-width: 1279px) {
+  .product-info-container {
+    flex-direction: column;
+  }
+
+  .nutrition-section {
+    width: 100%;
+  }
 }
 
-.reviewer-name {
-  font-weight: 500;
-  color: #444;
+.create-review-button {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
   font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #3367d6;
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
 }
 
-.review-header {
+.review-form-container {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+
+  h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
 }
 
-.review-date {
-  font-size: 0.8rem;
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
   color: #777;
+  font-size: 1.1rem;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.rating-selection {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.rating-label {
+  margin-right: 10px;
+  font-weight: 500;
+  color: #555;
+}
+
+.star-selection {
+  display: flex;
+  gap: 5px;
+
+  i {
+    color: #ddd;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+
+    &.filled {
+      color: #ffc107;
+    }
+
+    &.hovered {
+      color: #ffdb70;
+    }
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.review-textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.95rem;
+
+  &:focus {
+    border-color: #4285f4;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.submit-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #218838;
+  }
+
+  &:disabled {
+    background-color: #8ed0a2;
+    cursor: not-allowed;
+  }
 }

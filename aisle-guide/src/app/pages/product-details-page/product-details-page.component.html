@@ -221,6 +221,42 @@
         <div class="reviews-section">
             <h2>Customer Reviews</h2>
 
+            <button class="create-review-button" (click)="toggleReviewForm()" *ngIf="!showReviewForm">
+                <i class="fas fa-plus"></i> Write a Review
+            </button>
+
+            <div class="review-form-container" *ngIf="showReviewForm">
+                <form (ngSubmit)="submitReview()" class="review-form">
+                    <div class="form-header">
+                        <h5>Write a Review</h5>
+                        <button type="button" class="close-button" (click)="toggleReviewForm()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="rating-selection">
+                        <span class="rating-label">Your Rating:</span>
+                        <div class="star-selection">
+                            @for (star of [1,2,3,4,5]; track star) {
+                            <i class="fas fa-star" [class.filled]="star <= newReviewRating" (click)="setRating(star)"
+                                (mouseenter)="hoverRating = star" (mouseleave)="hoverRating = 0"
+                                [class.hovered]="star <= hoverRating && star > newReviewRating"></i>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea [(ngModel)]="newReviewContent" name="review-content" rows="4"
+                            placeholder="Share your experience with this product..." class="review-textarea"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-button" (click)="toggleReviewForm()">Cancel</button>
+                        <button type="submit" class="submit-button" [disabled]="!isReviewValid()">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+
             @if (isLoadingReviews) {
             <div class="loading-spinner">
                 <div class="spinner"></div>
@@ -239,7 +275,6 @@
                         <i class="fas fa-chevron-left"></i> Previous
                     </button>
                     } @else {
-                    <!-- Empty div to maintain layout spacing -->
                     <div></div>
                     }
 
@@ -250,7 +285,6 @@
                         Next <i class="fas fa-chevron-right"></i>
                     </button>
                     } @else {
-                    <!-- Empty div to maintain layout spacing -->
                     <div></div>
                     }
                 </div>
@@ -269,6 +303,18 @@
                         <div class="review-date">{{ review.createdAt | date:'medium' }}</div>
                     </div>
                     <div class="review-content">{{ review.content }}</div>
+
+                    <div class="review-actions" *ngIf="isAdmin || isReviewAuthor(review.userId)">
+                        <button class="delete-review-button" *ngIf="isAdmin || isReviewAuthor(review.userId)"
+                            (click)="deleteReview(review.id)">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+
+                        <button class="edit-review-button" *ngIf="isReviewAuthor(review.userId)"
+                            (click)="editReview(review)">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
                 </div>
                 }
             </div>

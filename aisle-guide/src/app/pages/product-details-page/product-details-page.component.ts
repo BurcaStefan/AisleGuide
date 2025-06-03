@@ -36,6 +36,15 @@ export class ProductDetailsPageComponent implements OnInit {
 
   userMap: { [userId: string]: { firstName: string; lastName: string } } = {};
 
+  showReviewForm = false;
+  newReviewContent = '';
+  newReviewRating = 0;
+  hoverRating = 0;
+  isSubmittingReview = false;
+  reviewSubmitError: string | null = null;
+  currentUserId: string | null = null;
+  reviewToEdit: any = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -53,6 +62,7 @@ export class ProductDetailsPageComponent implements OnInit {
         this.productId = id;
         this.loadProductDetails();
         this.loadReviews();
+        this.getCurrentUserId();
       } else {
         this.error = 'Product ID not found';
         this.isLoading = false;
@@ -77,31 +87,17 @@ export class ProductDetailsPageComponent implements OnInit {
   }
 
   checkNextPage(page: number): void {
-    console.log(`Checking if page ${page} has reviews...`);
-
     this.reviewService
       .getAllReviewsPaginatedById(this.productId, page, this.pageSize)
       .subscribe({
         next: (response) => {
           const nextPageReviews = Array.isArray(response) ? response : [];
-          console.log(
-            `Next page check result: found ${nextPageReviews.length} reviews on page ${page}`
-          );
 
           this.hasNextPage = nextPageReviews.length > 0;
 
           if (this.hasNextPage && page > this.totalPages) {
             this.totalPages = page;
-            console.log(
-              `Updated totalPages to ${this.totalPages} because next page has content`
-            );
           }
-
-          setTimeout(() => {
-            console.log(
-              `hasNextPage is now: ${this.hasNextPage}, totalPages is now: ${this.totalPages}`
-            );
-          }, 0);
         },
         error: (err) => {
           console.error(`Error checking next page ${page}:`, err);
@@ -129,18 +125,11 @@ export class ProductDetailsPageComponent implements OnInit {
     this.reviewError = null;
     this.currentPage = page;
 
-    console.log(
-      `Loading reviews for product: ${this.productId}, page: ${page}`
-    );
-
     this.reviewService
       .getAllReviewsPaginatedById(this.productId, page, this.pageSize)
       .pipe(
         switchMap((response) => {
-          console.log('Review API response:', response);
-
           this.reviews = Array.isArray(response) ? response : [];
-          console.log('Reviews after assignment:', this.reviews);
           this.totalPages = Math.max(this.totalPages, page);
 
           if (this.reviews.length === 0) {
@@ -150,11 +139,6 @@ export class ProductDetailsPageComponent implements OnInit {
             this.totalPages = page;
             this.hasNextPage = false;
           } else {
-            console.log(
-              `Found exactly ${this.pageSize} reviews, checking next page ${
-                page + 1
-              }...`
-            );
             this.checkNextPage(page + 1);
           }
 
@@ -194,7 +178,6 @@ export class ProductDetailsPageComponent implements OnInit {
                 lastName: user.lastName || 'User',
               };
             });
-            console.log('User information loaded:', this.userMap);
           }
         },
         error: (err) => {
@@ -266,5 +249,152 @@ export class ProductDetailsPageComponent implements OnInit {
         },
       });
     }
+  }
+
+  setRating(rating: number): void {
+    this.newReviewRating = rating;
+  }
+
+  isReviewValid(): boolean {
+    return this.newReviewRating > 0 && this.newReviewContent.trim().length > 0;
+  }
+
+  submitReview(): void {
+    if (!this.isReviewValid() || this.isSubmittingReview) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: this.router.url },
+      });
+      return;
+    }
+
+    this.isSubmittingReview = true;
+
+    try {
+      if (this.reviewToEdit) {
+        const updatedReview = {
+          id: this.reviewToEdit.id,
+          content: this.newReviewContent,
+          rating: this.newReviewRating,
+          createdAt: new Date().toISOString(),
+        };
+
+        this.reviewService
+          .updateReview(this.reviewToEdit.id, updatedReview)
+          .subscribe({
+            next: () => {
+              this.isSubmittingReview = false;
+              this.showReviewForm = false;
+              this.newReviewContent = '';
+              this.newReviewRating = 0;
+              this.reviewToEdit = null;
+              this.loadReviews(this.currentPage);
+            },
+            error: (err) => {
+              console.error('Error updating review:', err);
+              this.isSubmittingReview = false;
+              this.reviewSubmitError =
+                'Failed to update review. Please try again.';
+            },
+          });
+      } else {
+        const decodedToken: any = jwtDecode(token);
+        const userId =
+          decodedToken.id ||
+          decodedToken.Id ||
+          decodedToken.userId ||
+          decodedToken.UserId ||
+          decodedToken.sub ||
+          decodedToken.nameid;
+
+        const review = {
+          productId: this.productId,
+          userId: userId,
+          content: this.newReviewContent,
+          rating: this.newReviewRating,
+          createdAt: new Date(),
+        };
+
+        this.reviewService.createReview(review).subscribe({
+          next: () => {
+            this.isSubmittingReview = false;
+            this.showReviewForm = false;
+            this.newReviewContent = '';
+            this.newReviewRating = 0;
+            this.loadReviews(1);
+          },
+          error: (err) => {
+            console.error('Error creating review:', err);
+            this.isSubmittingReview = false;
+            this.reviewSubmitError =
+              'Failed to submit review. Please try again.';
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error processing review:', error);
+      this.isSubmittingReview = false;
+      this.reviewSubmitError = 'An error occurred. Please try again.';
+    }
+  }
+
+  toggleReviewForm(): void {
+    this.showReviewForm = !this.showReviewForm;
+    if (!this.showReviewForm) {
+      this.newReviewContent = '';
+      this.newReviewRating = 0;
+      this.hoverRating = 0;
+      this.reviewToEdit = null;
+    }
+  }
+
+  getCurrentUserId(): void {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+
+        this.currentUserId = decodedToken.unique_name;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
+    }
+  }
+
+  isReviewAuthor(reviewUserId: string): boolean {
+    const isAuthor = this.currentUserId === reviewUserId;
+    return isAuthor;
+  }
+
+  deleteReview(reviewId: string): void {
+    if (confirm('Are you sure you want to delete this review?')) {
+      this.reviewService.deleteReview(reviewId).subscribe({
+        next: () => {
+          this.loadReviews(this.currentPage);
+        },
+        error: (err) => {
+          console.error('Error deleting review:', err);
+          this.reviewError = 'Failed to delete review';
+        },
+      });
+    }
+  }
+
+  editReview(review: any): void {
+    this.reviewToEdit = { ...review };
+    this.showReviewForm = true;
+    this.newReviewContent = review.content;
+    this.newReviewRating = review.rating;
+
+    setTimeout(() => {
+      const reviewForm = document.querySelector('.review-form-container');
+      if (reviewForm) {
+        reviewForm.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   }
 }
