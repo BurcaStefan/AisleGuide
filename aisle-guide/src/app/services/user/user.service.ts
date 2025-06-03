@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { User } from '../../models/user.model';
 
 @Injectable({
@@ -15,10 +15,19 @@ export class UserService {
     email: string,
     password: string
   ): Observable<{ AccessToken: string; RefreshToken: string }> {
-    return this.http.post<{ AccessToken: string; RefreshToken: string }>(
-      `${this.userUrl}/login`,
-      { email, password }
-    );
+    return this.http
+      .post<{ AccessToken: string; RefreshToken: string }>(
+        `${this.userUrl}/login`,
+        { email, password }
+      )
+      .pipe(
+        tap((response) => {
+          localStorage.setItem('token', response.AccessToken);
+          localStorage.setItem('refreshToken', response.RefreshToken);
+
+          this.getUserIdFromToken(response.AccessToken);
+        })
+      );
   }
 
   public register(user: User): Observable<string> {
