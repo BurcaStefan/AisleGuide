@@ -62,7 +62,6 @@ export class UserService {
   public getUserIdFromToken(token: string): string {
     try {
       const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-      console.log(tokenPayload);
       return tokenPayload.unique_name;
     } catch (error) {
       console.error('Error decoding token:', error);
