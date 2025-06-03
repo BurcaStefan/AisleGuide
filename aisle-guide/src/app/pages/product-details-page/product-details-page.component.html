@@ -217,6 +217,68 @@
                 }
             </div>
         </div>
+
+        <div class="reviews-section">
+            <h2>Customer Reviews</h2>
+
+            @if (isLoadingReviews) {
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading reviews...</p>
+            </div>
+            } @else if (reviewError) {
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>{{ reviewError }}</p>
+            </div>
+            } @else if (reviews && reviews.length > 0) {
+            <div class="reviews-container">
+                <div class="pagination-controls">
+                    @if (currentPage > 1) {
+                    <button class="pagination-button prev-button" (click)="goToPage(currentPage - 1)">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    } @else {
+                    <!-- Empty div to maintain layout spacing -->
+                    <div></div>
+                    }
+
+                    <span class="page-indicator">Page {{ currentPage }}</span>
+
+                    @if (hasNextPage) {
+                    <button class="pagination-button next-button" (click)="goToPage(currentPage + 1)">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                    } @else {
+                    <!-- Empty div to maintain layout spacing -->
+                    <div></div>
+                    }
+                </div>
+
+                @for (review of reviews; track review.id) {
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">{{ getUserFullName(review.userId) }}</div>
+                            <div class="review-rating">
+                                @for (star of [1,2,3,4,5]; track star) {
+                                <i class="fas fa-star" [class.filled]="star <= review.rating"></i>
+                                }
+                            </div>
+                        </div>
+                        <div class="review-date">{{ review.createdAt | date:'medium' }}</div>
+                    </div>
+                    <div class="review-content">{{ review.content }}</div>
+                </div>
+                }
+            </div>
+            } @else {
+            <div class="no-reviews">
+                <p>This product has no reviews yet.</p>
+            </div>
+            }
+        </div>
+
         } @else {
         <div class="not-found-message">
             <p>Product not found</p>
