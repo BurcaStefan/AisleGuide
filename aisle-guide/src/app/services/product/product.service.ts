@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Product } from '../../models/product.model';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ import { Observable } from 'rxjs';
 export class ProductService {
   private productUrl = 'http://localhost:5045/api/Products';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   public getAllProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.productUrl);
@@ -23,8 +24,17 @@ export class ProductService {
     return this.http.get<Product>(`${this.productUrl}/${id}`);
   }
 
-  public updateProduct(id: string, product: Product): Observable<boolean> {
-    return this.http.put<boolean>(`${this.productUrl}/${id}`, product);
+  public updateProduct(id: string, product: any): Observable<boolean> {
+    const token = localStorage.getItem('token');
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.put<boolean>(`${this.productUrl}/${id}`, product, {
+      headers,
+    });
   }
 
   public deleteProduct(id: string): Observable<void> {

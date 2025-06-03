@@ -43,26 +43,109 @@ export class AdminHomePageComponent {
 
   constructor(private productService: ProductService) {}
 
-  loadProductsByUnit(unitCode: string): void {
+  currentPage: number = 1;
+  pageSize: number = 5;
+  totalCount: number = 0;
+  totalPages: number = 0;
+
+  hasNextPage: boolean = false;
+
+  loadProductsByUnit(unitCode: string, page: number = 1): void {
     this.isLoading = true;
     this.selectedUnit = unitCode;
     this.error = null;
+    this.currentPage = page;
 
     const queryParams = {
-      pageNumber: 1,
-      pageSize: 5,
+      pageNumber: page,
+      pageSize: this.pageSize,
       shelvingUnit: unitCode,
     };
 
     this.productService.getProductsPaginatedByFilter(queryParams).subscribe({
       next: (response: any) => {
         this.products = response.data || [];
+        this.totalCount = response.totalCount || 0;
+        this.checkNextPage(unitCode, page + 1);
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Error loading products:', err);
         this.error = 'Unable to load products. Please try again.';
         this.isLoading = false;
+        this.hasNextPage = false;
+      },
+    });
+  }
+
+  checkNextPage(unitCode: string, nextPage: number): void {
+    const nextPageParams = {
+      pageNumber: nextPage,
+      pageSize: this.pageSize,
+      shelvingUnit: unitCode,
+    };
+
+    this.productService.getProductsPaginatedByFilter(nextPageParams).subscribe({
+      next: (response: any) => {
+        this.hasNextPage = response.data && response.data.length > 0;
+      },
+      error: () => {
+        this.hasNextPage = false;
+      },
+    });
+  }
+
+  goToNextPage(): void {
+    if (this.hasNextPage) {
+      this.loadProductsByUnit(this.selectedUnit, this.currentPage + 1);
+    }
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.loadProductsByUnit(this.selectedUnit, this.currentPage - 1);
+    }
+  }
+
+  removeProductFromShelf(productId: string): void {
+    const productToUpdate = this.products.find((p) => p.id === productId);
+
+    if (!productToUpdate) {
+      this.error = 'Product not found';
+      return;
+    }
+
+    const updatedProduct = { ...productToUpdate, shelvingUnit: null };
+
+    this.isLoading = true;
+
+    this.productService.updateProduct(productId, updatedProduct).subscribe({
+      next: (result: boolean) => {
+        this.isLoading = false;
+
+        if (result) {
+          // Instead of just removing the product from the array,
+          // reload the entire page to get fresh data
+          this.loadProductsByUnit(this.selectedUnit, this.currentPage);
+
+          // Optional: Show a success message
+          // this.successMessage = 'Product removed successfully';
+        } else {
+          this.error = 'Failed to remove product from shelf';
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error removing product:', err);
+
+        if (err.status === 401) {
+          this.error = 'Your session has expired. Please log in again.';
+        } else if (err.status === 403) {
+          this.error =
+            "You don't have permission to remove products. Admin access required.";
+        } else {
+          this.error = 'Error removing product. Please try again.';
+        }
       },
     });
   }

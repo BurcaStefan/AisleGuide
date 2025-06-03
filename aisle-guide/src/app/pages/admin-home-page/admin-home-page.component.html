@@ -11,6 +11,20 @@
                 }
             </h2>
 
+            @if (products.length > 0) {
+            <div class="pagination-controls">
+                <button class="pagination-button prev-button" [disabled]="currentPage <= 1"
+                    [class.hidden]="currentPage <= 1" (click)="goToPreviousPage()">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-indicator">Page {{ currentPage }}</span>
+                <button class="pagination-button next-button" [disabled]="!hasNextPage" [class.hidden]="!hasNextPage"
+                    (click)="goToNextPage()">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            }
+
             @if (isLoading) {
             <div class="loading-spinner">
                 <div class="spinner"></div>
@@ -42,7 +56,12 @@
                     <div class="card-right">
                         <h3 class="product-name">{{ product.name }}</h3>
                         <div class="price">{{ product.price | currency:'RON':'symbol':'1.2-2' }}</div>
-                        <button class="details-button">View Details</button>
+                        <div class="button-group">
+                            <button class="details-button">View Details</button>
+                            <button class="remove-button" (click)="removeProductFromShelf(product.id)">
+                                <i class="fas fa-times"></i> Remove
+                            </button>
+                        </div>
                     </div>
                 </div>
                 }
