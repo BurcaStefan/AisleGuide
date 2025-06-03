@@ -124,12 +124,8 @@ export class AdminHomePageComponent {
         this.isLoading = false;
 
         if (result) {
-          // Instead of just removing the product from the array,
-          // reload the entire page to get fresh data
           this.loadProductsByUnit(this.selectedUnit, this.currentPage);
 
-          // Optional: Show a success message
-          // this.successMessage = 'Product removed successfully';
         } else {
           this.error = 'Failed to remove product from shelf';
         }
