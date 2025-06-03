@@ -5,6 +5,7 @@ import { ProductService } from '../../services/product/product.service';
 import { Product } from '../../models/product.model';
 import { CommonModule } from '@angular/common';
 import { CurrencyPipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-home-page',
@@ -41,7 +42,7 @@ export class AdminHomePageComponent {
   isLoading: boolean = false;
   error: string | null = null;
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService, private router: Router) {}
 
   currentPage: number = 1;
   pageSize: number = 5;
@@ -125,7 +126,6 @@ export class AdminHomePageComponent {
 
         if (result) {
           this.loadProductsByUnit(this.selectedUnit, this.currentPage);
-
         } else {
           this.error = 'Failed to remove product from shelf';
         }
@@ -144,5 +144,9 @@ export class AdminHomePageComponent {
         }
       },
     });
+  }
+
+  viewProductDetails(productId: string): void {
+    this.router.navigate(['/admin/product-details', productId]);
   }
 }
