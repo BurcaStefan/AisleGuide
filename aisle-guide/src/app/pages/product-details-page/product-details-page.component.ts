@@ -194,7 +194,11 @@ export class ProductDetailsPageComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/admin-home']);
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      this.router.navigate(['/admin-home']);
+    }
   }
 
   goToPage(page: number): void {
@@ -241,7 +245,7 @@ export class ProductDetailsPageComponent implements OnInit {
     if (confirm('Are you sure you want to delete this product?')) {
       this.productService.deleteProduct(this.productId).subscribe({
         next: () => {
-          this.router.navigate(['/admin-home']);
+          this.goBack();
         },
         error: (err) => {
           console.error('Error deleting product:', err);
