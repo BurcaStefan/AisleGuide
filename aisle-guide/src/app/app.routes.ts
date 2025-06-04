@@ -7,6 +7,7 @@ import { ProductDetailsPageComponent } from './pages/product-details-page/produc
 
 export const routes: Routes = [
   { path: '', component: LoginPageComponent },
+  { path: 'login', component: LoginPageComponent },
   { path: 'register', component: RegisterPageComponent },
   { path: 'home', component: UserHomePageComponent },
   { path: 'admin-home', component: AdminHomePageComponent },
