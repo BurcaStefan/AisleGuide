@@ -48,17 +48,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="category">Category *</label>
-                    <input id="category" type="text" formControlName="category" class="form-control">
-
-                    @if(productForm.get('category')?.invalid && productForm.get('category')?.touched) {
-                    @if(productForm.get('category')?.errors?.['required']) {
-                    <div class="error-message">Category is required.</div>
-                    }
-                    }
-                </div>
-
-                <div class="form-group">
                     <label for="isbn">ISBN *</label>
                     <input id="isbn" type="text" formControlName="isbn" class="form-control">
 
@@ -70,111 +59,138 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="category">Category *</label>
+                    <select id="category" formControlName="category" class="form-control">
+                        <option value="">Select a category</option>
+                        @for (category of categories; track category) {
+                        <option [value]="category">{{ category }}</option>
+                        }
+                    </select>
+
+                    @if(productForm.get('category')?.invalid && productForm.get('category')?.touched) {
+                    @if(productForm.get('category')?.errors?.['required']) {
+                    <div class="error-message">Category is required.</div>
+                    }
+                    }
+                </div>
+
+                <div class="form-group">
                     <label for="shelvingUnit">Shelving Unit</label>
-                    <input id="shelvingUnit" type="text" formControlName="shelvingUnit" class="form-control">
+                    <select id="shelvingUnit" formControlName="shelvingUnit" class="form-control">
+                        <option value="">Select a shelving unit</option>
+                        @for (unit of shelvingUnits; track unit) {
+                        <option [value]="unit">{{ unit }}</option>
+                        }
+                    </select>
                 </div>
             </div>
 
-            <div class="nutrition-grid">
-                <div class="form-group">
-                    <label for="calories">Calories</label>
-                    <input id="calories" type="number" formControlName="calories" class="form-control">
+            <div class="form-section">
+                <h3>Nutritional Information</h3>
+                <p>All values are optional and default to 0 if not provided.</p>
 
-                    @if(productForm.get('calories')?.invalid && productForm.get('calories')?.touched) {
-                    @if(productForm.get('calories')?.errors?.['min']) {
-                    <div class="error-message">Calories cannot be negative.</div>
-                    }
-                    }
-                </div>
+                <div class="nutrition-grid">
+                    <div class="form-group">
+                        <label for="calories">Calories</label>
+                        <input id="calories" type="number" formControlName="calories" class="form-control">
 
-                <div class="form-group">
-                    <label for="protein">Protein (g)</label>
-                    <input id="protein" type="number" step="0.1" formControlName="protein" class="form-control">
+                        @if(productForm.get('calories')?.invalid && productForm.get('calories')?.touched) {
+                        @if(productForm.get('calories')?.errors?.['min']) {
+                        <div class="error-message">Calories cannot be negative.</div>
+                        }
+                        }
+                    </div>
 
-                    @if(productForm.get('protein')?.invalid && productForm.get('protein')?.touched) {
-                    @if(productForm.get('protein')?.errors?.['min']) {
-                    <div class="error-message">Protein cannot be negative.</div>
-                    }
-                    }
-                </div>
+                    <div class="form-group">
+                        <label for="protein">Protein (g)</label>
+                        <input id="protein" type="number" step="0.1" formControlName="protein" class="form-control">
 
-                <div class="form-group">
-                    <label for="carbohydrates">Carbohydrates (g)</label>
-                    <input id="carbohydrates" type="number" step="0.1" formControlName="carbohydrates"
-                        class="form-control">
+                        @if(productForm.get('protein')?.invalid && productForm.get('protein')?.touched) {
+                        @if(productForm.get('protein')?.errors?.['min']) {
+                        <div class="error-message">Protein cannot be negative.</div>
+                        }
+                        }
+                    </div>
 
-                    @if(productForm.get('carbohydrates')?.invalid && productForm.get('carbohydrates')?.touched) {
-                    @if(productForm.get('carbohydrates')?.errors?.['min']) {
-                    <div class="error-message">Carbohydrates cannot be negative.</div>
-                    }
-                    }
-                </div>
+                    <div class="form-group">
+                        <label for="carbohydrates">Carbohydrates (g)</label>
+                        <input id="carbohydrates" type="number" step="0.1" formControlName="carbohydrates"
+                            class="form-control">
 
-                <div class="form-group">
-                    <label for="sugars">Sugars (g)</label>
-                    <input id="sugars" type="number" step="0.1" formControlName="sugars" class="form-control">
+                        @if(productForm.get('carbohydrates')?.invalid && productForm.get('carbohydrates')?.touched) {
+                        @if(productForm.get('carbohydrates')?.errors?.['min']) {
+                        <div class="error-message">Carbohydrates cannot be negative.</div>
+                        }
+                        }
+                    </div>
 
-                    @if(productForm.get('sugars')?.invalid && productForm.get('sugars')?.touched) {
-                    @if(productForm.get('sugars')?.errors?.['min']) {
-                    <div class="error-message">Sugars cannot be negative.</div>
-                    }
-                    }
-                </div>
+                    <div class="form-group">
+                        <label for="sugars">Sugars (g)</label>
+                        <input id="sugars" type="number" step="0.1" formControlName="sugars" class="form-control">
 
-                <div class="form-group">
-                    <label for="fat">Fat (g)</label>
-                    <input id="fat" type="number" step="0.1" formControlName="fat" class="form-control">
+                        @if(productForm.get('sugars')?.invalid && productForm.get('sugars')?.touched) {
+                        @if(productForm.get('sugars')?.errors?.['min']) {
+                        <div class="error-message">Sugars cannot be negative.</div>
+                        }
+                        }
+                    </div>
 
-                    @if(productForm.get('fat')?.invalid && productForm.get('fat')?.touched) {
-                    @if(productForm.get('fat')?.errors?.['min']) {
-                    <div class="error-message">Fat cannot be negative.</div>
-                    }
-                    }
-                </div>
+                    <div class="form-group">
+                        <label for="fat">Fat (g)</label>
+                        <input id="fat" type="number" step="0.1" formControlName="fat" class="form-control">
 
-                <div class="form-group">
-                    <label for="saturatedFat">Saturated Fat (g)</label>
-                    <input id="saturatedFat" type="number" step="0.1" formControlName="saturatedFat"
-                        class="form-control">
+                        @if(productForm.get('fat')?.invalid && productForm.get('fat')?.touched) {
+                        @if(productForm.get('fat')?.errors?.['min']) {
+                        <div class="error-message">Fat cannot be negative.</div>
+                        }
+                        }
+                    </div>
 
-                    @if(productForm.get('saturatedFat')?.invalid && productForm.get('saturatedFat')?.touched) {
-                    @if(productForm.get('saturatedFat')?.errors?.['min']) {
-                    <div class="error-message">Saturated fat cannot be negative.</div>
-                    }
-                    }
-                </div>
+                    <div class="form-group">
+                        <label for="saturatedFat">Saturated Fat (g)</label>
+                        <input id="saturatedFat" type="number" step="0.1" formControlName="saturatedFat"
+                            class="form-control">
 
-                <div class="form-group">
-                    <label for="fiber">Fiber (g)</label>
-                    <input id="fiber" type="number" step="0.1" formControlName="fiber" class="form-control">
+                        @if(productForm.get('saturatedFat')?.invalid && productForm.get('saturatedFat')?.touched) {
+                        @if(productForm.get('saturatedFat')?.errors?.['min']) {
+                        <div class="error-message">Saturated fat cannot be negative.</div>
+                        }
+                        }
+                    </div>
 
-                    @if(productForm.get('fiber')?.invalid && productForm.get('fiber')?.touched) {
-                    @if(productForm.get('fiber')?.errors?.['min']) {
-                    <div class="error-message">Fiber cannot be negative.</div>
-                    }
-                    }
-                </div>
+                    <div class="form-group">
+                        <label for="fiber">Fiber (g)</label>
+                        <input id="fiber" type="number" step="0.1" formControlName="fiber" class="form-control">
 
-                <div class="form-group">
-                    <label for="salt">Salt (g)</label>
-                    <input id="salt" type="number" step="0.1" formControlName="salt" class="form-control">
+                        @if(productForm.get('fiber')?.invalid && productForm.get('fiber')?.touched) {
+                        @if(productForm.get('fiber')?.errors?.['min']) {
+                        <div class="error-message">Fiber cannot be negative.</div>
+                        }
+                        }
+                    </div>
 
-                    @if(productForm.get('salt')?.invalid && productForm.get('salt')?.touched) {
-                    @if(productForm.get('salt')?.errors?.['min']) {
-                    <div class="error-message">Salt cannot be negative.</div>
-                    }
-                    }
-                </div>
+                    <div class="form-group">
+                        <label for="salt">Salt (g)</label>
+                        <input id="salt" type="number" step="0.1" formControlName="salt" class="form-control">
 
-                <div class="form-group">
-                    <label for="cholesterol">Cholesterol (mg)</label>
-                    <input id="cholesterol" type="number" step="0.1" formControlName="cholesterol" class="form-control">
+                        @if(productForm.get('salt')?.invalid && productForm.get('salt')?.touched) {
+                        @if(productForm.get('salt')?.errors?.['min']) {
+                        <div class="error-message">Salt cannot be negative.</div>
+                        }
+                        }
+                    </div>
 
-                    @if(productForm.get('cholesterol')?.invalid && productForm.get('cholesterol')?.touched) {
-                    @if(productForm.get('cholesterol')?.errors?.['min']) {
-                    <div class="error-message">Cholesterol cannot be negative.</div>
-                    }
-                    }
+                    <div class="form-group">
+                        <label for="cholesterol">Cholesterol (mg)</label>
+                        <input id="cholesterol" type="number" step="0.1" formControlName="cholesterol"
+                            class="form-control">
+
+                        @if(productForm.get('cholesterol')?.invalid && productForm.get('cholesterol')?.touched) {
+                        @if(productForm.get('cholesterol')?.errors?.['min']) {
+                        <div class="error-message">Cholesterol cannot be negative.</div>
+                        }
+                        }
+                    </div>
                 </div>
             </div>
 
