@@ -17,7 +17,14 @@ export class ProductService {
   }
 
   public createProduct(product: Product): Observable<string> {
-    return this.http.post<string>(this.productUrl, product);
+    const token = localStorage.getItem('token');
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.post<string>(this.productUrl, product, { headers });
   }
 
   public getProductById(id: string): Observable<Product> {

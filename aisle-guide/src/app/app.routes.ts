@@ -4,6 +4,7 @@ import { UserHomePageComponent } from './pages/user-home-page/user-home-page.com
 import { AdminHomePageComponent } from './pages/admin-home-page/admin-home-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { ProductDetailsPageComponent } from './pages/product-details-page/product-details-page.component';
+import { ProductCreatePageComponent } from './pages/product-create-page/product-create-page.component';
 
 export const routes: Routes = [
   { path: '', component: LoginPageComponent },
@@ -12,4 +13,5 @@ export const routes: Routes = [
   { path: 'home', component: UserHomePageComponent },
   { path: 'admin-home', component: AdminHomePageComponent },
   { path: 'details/:id', component: ProductDetailsPageComponent },
+  { path: 'create-product', component: ProductCreatePageComponent },
 ];
