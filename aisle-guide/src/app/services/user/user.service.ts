@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { User } from '../../models/user.model';
 
@@ -43,11 +43,15 @@ export class UserService {
   }
 
   public updateUser(id: string, user: User): Observable<boolean> {
-    return this.http.put<boolean>(`${this.userUrl}/id?id=${id}`, user);
+    const headers = this.getAuthHeaders();
+    return this.http.put<boolean>(`${this.userUrl}/id?id=${id}`, user, {
+      headers,
+    });
   }
 
   public deleteUser(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.userUrl}/${id}`);
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.userUrl}/${id}`, { headers });
   }
 
   public refreshToken(
@@ -57,6 +61,14 @@ export class UserService {
       `${this.userUrl}/refresh`,
       { token }
     );
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    });
   }
 
   public getUserIdFromToken(token: string): string {

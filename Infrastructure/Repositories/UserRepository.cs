@@ -85,6 +85,12 @@ namespace Infrastructure.Repositories
                     return Result<bool>.Failure("User not found");
                 }
 
+                var existingUserWithThisEmail = await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == user.Email);
+                if (existingUserWithThisEmail != null && existingUserWithThisEmail.Id != user.Id)
+                {
+                    return Result<bool>.Failure("This email is already taken");
+                }
+
                 if (user.Password != existingUser.Password)
                 {
                     user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);

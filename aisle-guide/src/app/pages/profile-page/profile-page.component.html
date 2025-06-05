@@ -1,0 +1,132 @@
+@if (isAdmin) {
+<app-admin-header></app-admin-header>
+} @else {
+<app-client-header></app-client-header>
+}
+
+<div class="container">
+    <div class="profile-card">
+        @if (isLoading) {
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading profile...</p>
+        </div>
+        } @else {
+        <div class="profile-header">
+            <h1>Profile Information</h1>
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-image-section">
+                <div class="profile-image">
+                    <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1180&q=80"
+                        alt="Profile image">
+                </div>
+                @if (!isEditing) {
+                <button class="edit-button" (click)="startEditing()">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
+                }
+            </div>
+
+            <div class="profile-info">
+                <div class="info-row">
+                    <span class="label">First Name:</span>
+                    @if (!isEditing) {
+                    <span class="value">{{ firstName }}</span>
+                    } @else {
+                    <input type="text" class="edit-in-place" [(ngModel)]="updateModel.firstName">
+                    }
+                </div>
+
+                <div class="info-row">
+                    <span class="label">Last Name:</span>
+                    @if (!isEditing) {
+                    <span class="value">{{ lastName }}</span>
+                    } @else {
+                    <input type="text" class="edit-in-place" [(ngModel)]="updateModel.lastName">
+                    }
+                </div>
+
+                <div class="info-row">
+                    <span class="label">Email:</span>
+                    @if (!isEditing) {
+                    <span class="value">{{ email }}</span>
+                    } @else {
+                    <input type="email" class="edit-in-place" [(ngModel)]="updateModel.email">
+                    }
+                </div>
+
+                <div class="info-row">
+                    <span class="label">Password:</span>
+                    <span class="value">••••••••</span>
+                    <button class="password-button" (click)="togglePasswordChange()">Change Password</button>
+                </div>
+
+                @if (showPasswordChange) {
+                <div class="password-change-section">
+                    <div class="info-row">
+                        <span class="label">Current Password:</span>
+                        <input type="password" class="edit-in-place" [(ngModel)]="passwordChangeModel.oldPassword"
+                            placeholder="Enter current password">
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">New Password:</span>
+                        <input type="password" class="edit-in-place" [(ngModel)]="passwordChangeModel.newPassword"
+                            placeholder="Enter new password">
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Confirm Password:</span>
+                        <input type="password" class="edit-in-place" [(ngModel)]="passwordChangeModel.confirmPassword"
+                            placeholder="Confirm new password">
+                    </div>
+
+                    <div class="password-actions">
+                        <button class="btn-save" (click)="updatePassword()" [disabled]="isUpdatingPassword">
+                            {{ isUpdatingPassword ? 'Updating...' : 'Update Password' }}
+                        </button>
+                        <button class="btn-cancel" (click)="cancelPasswordChange()">Cancel</button>
+                    </div>
+                </div>
+                }
+
+                <div class="info-row">
+                    <span class="label">Role:</span>
+                    <span class="value role">{{ isAdmin ? 'Administrator' : 'User' }}</span>
+                </div>
+            </div>
+        </div>
+
+        @if (isEditing) {
+        <div class="profile-actions editing-actions">
+            <button class="btn-save" (click)="updateProfile()" [disabled]="isUpdating">
+                {{ isUpdating ? 'Saving...' : 'Save Changes' }}
+            </button>
+            <button class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+        </div>
+        } @else {
+        <div class="profile-actions">
+            <button class="btn-delete" (click)="deleteAccount()" [disabled]="isDeleting">
+                {{ isDeleting ? 'Deleting...' : 'Delete Account' }}
+            </button>
+            <button class="btn-logout" (click)="logout()">Logout</button>
+        </div>
+        }
+
+        @if (errorMessage) {
+        <div class="error-message-bottom">
+            {{ errorMessage }}
+            <button class="close-error" (click)="clearError()">×</button>
+        </div>
+        }
+        }
+    </div>
+</div>
+
+@if (isAdmin) {
+<app-admin-footer></app-admin-footer>
+} @else {
+<app-client-footer></app-client-footer>
+}
