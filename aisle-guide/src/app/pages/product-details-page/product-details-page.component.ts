@@ -438,11 +438,6 @@ export class ProductDetailsPageComponent implements OnInit {
       }
     }
 
-    console.log(
-      `Collected ${allReviews.length} total reviews from ${
-        currentPage - 1
-      } pages`
-    );
     return allReviews;
   }
 
@@ -451,7 +446,6 @@ export class ProductDetailsPageComponent implements OnInit {
       const allReviews = await this.getAllReviewsForProduct(this.productId);
 
       if (allReviews.length === 0) {
-        console.log('No reviews found for product');
         if (this.product) {
           const updatedProduct = {
             ...this.product,
@@ -461,7 +455,6 @@ export class ProductDetailsPageComponent implements OnInit {
             .updateProduct(this.productId, updatedProduct)
             .toPromise();
           this.product.averageRating = 0;
-          console.log('Product average rating updated to 0 (no reviews)');
         }
         return;
       }
@@ -471,14 +464,6 @@ export class ProductDetailsPageComponent implements OnInit {
         0
       );
       const averageRating = totalRating / allReviews.length;
-
-      console.log(
-        `Calculated average rating: ${averageRating} from ${allReviews.length} reviews`
-      );
-      console.log(
-        'All ratings:',
-        allReviews.map((r) => r.rating)
-      );
 
       if (this.product) {
         const updatedProduct = {
@@ -492,9 +477,6 @@ export class ProductDetailsPageComponent implements OnInit {
 
         this.product.averageRating = updatedProduct.avgRating;
 
-        console.log(
-          `Product average rating updated to: ${updatedProduct.avgRating}`
-        );
       }
     } catch (error) {
       console.error('Error updating product average rating:', error);

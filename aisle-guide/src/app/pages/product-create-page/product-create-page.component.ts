@@ -27,7 +27,6 @@ export class ProductCreatePageComponent {
   isFormSubmitted = false;
   imageError = false;
 
-  // Liste pentru dropdown-uri
   categories: string[] = [
     'Alcohol',
     'Bakery',

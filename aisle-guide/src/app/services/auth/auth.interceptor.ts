@@ -24,7 +24,6 @@ export class AuthInterceptor implements HttpInterceptor {
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    console.log('Interceptor processing URL:', request.url);
 
     if (this.isAuthEndpoint(request.url)) {
       return next.handle(request);
@@ -37,12 +36,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error) => {
-        console.log('Error caught by interceptor:', error);
         if (error instanceof HttpErrorResponse && error.status === 401) {
-          console.log(
-            '401 unauthorized error intercepted for URL:',
-            request.url
-          );
           return this.handle401Error(request, next);
         }
         return throwError(() => error);
@@ -74,15 +68,12 @@ export class AuthInterceptor implements HttpInterceptor {
       const refreshToken = localStorage.getItem('refreshToken');
 
       if (!refreshToken) {
-        console.log('No refresh token available');
         this.redirectToLogin();
         return throwError(() => 'No refresh token available');
       }
 
-      console.log('Attempting to refresh token');
       return this.userService.refreshToken(refreshToken).pipe(
         switchMap((response) => {
-          console.log('Token refresh successful');
           localStorage.setItem('token', response.AccessToken);
           localStorage.setItem('refreshToken', response.RefreshToken);
 
@@ -90,7 +81,6 @@ export class AuthInterceptor implements HttpInterceptor {
           return next.handle(this.addToken(request, response.AccessToken));
         }),
         catchError((error) => {
-          console.log('Token refresh failed:', error);
           this.redirectToLogin();
           return throwError(() => error);
         }),
@@ -108,7 +98,6 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private redirectToLogin(): void {
-    console.log('Redirecting to login page');
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
 
