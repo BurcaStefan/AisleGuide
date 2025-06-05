@@ -1,4 +1,8 @@
+@if (isAdmin) {
 <app-admin-header></app-admin-header>
+} @else {
+<app-client-header></app-client-header>
+}
 
 <div class="container">
     <div class="products-container">
@@ -129,4 +133,8 @@
     </div>
 </div>
 
+@if (isAdmin) {
 <app-admin-footer></app-admin-footer>
+} @else {
+<app-client-footer></app-client-footer>
+}

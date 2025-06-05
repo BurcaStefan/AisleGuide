@@ -447,10 +447,26 @@ export class ProductDetailsPageComponent implements OnInit {
 
       if (allReviews.length === 0) {
         if (this.product) {
-          const updatedProduct = {
-            ...this.product,
-            avgRating: 0,
+          const updatedProduct: Product = {
+            id: this.product.id,
+            name: this.product.name,
+            price: this.product.price,
+            description: this.product.description,
+            category: this.product.category,
+            shelvingUnit: this.product.shelvingUnit,
+            isbn: this.product.isbn,
+            averageRating: 0,
+            calories: this.product.calories,
+            protein: this.product.protein,
+            carbohydrates: this.product.carbohydrates,
+            sugars: this.product.sugars,
+            fat: this.product.fat,
+            saturatedFat: this.product.saturatedFat,
+            fiber: this.product.fiber,
+            salt: this.product.salt,
+            cholesterol: this.product.cholesterol,
           };
+
           await this.productService
             .updateProduct(this.productId, updatedProduct)
             .toPromise();
@@ -466,17 +482,30 @@ export class ProductDetailsPageComponent implements OnInit {
       const averageRating = totalRating / allReviews.length;
 
       if (this.product) {
-        const updatedProduct = {
-          ...this.product,
-          avgRating: Math.round(averageRating * 100) / 100,
+        const updatedProduct: Product = {
+          id: this.product.id,
+          name: this.product.name,
+          price: this.product.price,
+          description: this.product.description,
+          category: this.product.category,
+          shelvingUnit: this.product.shelvingUnit,
+          isbn: this.product.isbn,
+          averageRating: Math.round(averageRating * 100) / 100,
+          calories: this.product.calories,
+          protein: this.product.protein,
+          carbohydrates: this.product.carbohydrates,
+          sugars: this.product.sugars,
+          fat: this.product.fat,
+          saturatedFat: this.product.saturatedFat,
+          fiber: this.product.fiber,
+          salt: this.product.salt,
+          cholesterol: this.product.cholesterol,
         };
 
         await this.productService
           .updateProduct(this.productId, updatedProduct)
           .toPromise();
-
-        this.product.averageRating = updatedProduct.avgRating;
-
+        this.product.averageRating = updatedProduct.averageRating;
       }
     } catch (error) {
       console.error('Error updating product average rating:', error);

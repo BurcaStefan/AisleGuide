@@ -4,15 +4,21 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product/product.service';
 import { AdminHeaderComponent } from '../../components/layout/admin-header/admin-header.component';
 import { AdminFooterComponent } from '../../components/layout/admin-footer/admin-footer.component';
+import { ClientFooterComponent } from '../../components/layout/client-footer/client-footer.component';
+import { ClientHeaderComponent } from '../../components/layout/client-header/client-header.component';
 import { CommonModule } from '@angular/common';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-products-page',
+  standalone: true,
   templateUrl: './products-page.component.html',
-  styleUrls: ['./products-page.component.scss'],
+  styleUrl: './products-page.component.scss',
   imports: [
     AdminHeaderComponent,
     AdminFooterComponent,
+    ClientHeaderComponent,
+    ClientFooterComponent,
     CommonModule,
     ReactiveFormsModule,
   ],
@@ -27,6 +33,8 @@ export class ProductsPageComponent implements OnInit {
 
   filterForm: FormGroup;
   showFilterForm: boolean = false;
+  isAdmin: boolean = false;
+  isLoading: boolean = false;
 
   categories: string[] = [
     'Alcohol',
@@ -43,20 +51,86 @@ export class ProductsPageComponent implements OnInit {
     'Sweets',
     'Vegetables',
   ];
+
   shelvingUnits: string[] = [
-    'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8',
-    'B1', 'B2', 'B3',
-    'C1', 'C2', 'C3', 'C4', 'C5',
-    'D1', 'D2', 'D3', 'D4', 'D5',
-    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8',
-    'G1', 'G2', 'G3', 'G4',
-    'H1', 'H2', 'H3', 'H4',
-    'I1', 'I2', 'I3', 'I4',
-    'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9',
-    'N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8',
-    'O1', 'O2', 'O3', 'O4', 'O5',
-    'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7',
-    'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8',
+    'A1',
+    'A2',
+    'A3',
+    'A4',
+    'A5',
+    'A6',
+    'A7',
+    'A8',
+    'B1',
+    'B2',
+    'B3',
+    'C1',
+    'C2',
+    'C3',
+    'C4',
+    'C5',
+    'D1',
+    'D2',
+    'D3',
+    'D4',
+    'D5',
+    'F1',
+    'F2',
+    'F3',
+    'F4',
+    'F5',
+    'F6',
+    'F7',
+    'F8',
+    'G1',
+    'G2',
+    'G3',
+    'G4',
+    'H1',
+    'H2',
+    'H3',
+    'H4',
+    'I1',
+    'I2',
+    'I3',
+    'I4',
+    'M1',
+    'M2',
+    'M3',
+    'M4',
+    'M5',
+    'M6',
+    'M7',
+    'M8',
+    'M9',
+    'N1',
+    'N2',
+    'N3',
+    'N4',
+    'N5',
+    'N6',
+    'N7',
+    'N8',
+    'O1',
+    'O2',
+    'O3',
+    'O4',
+    'O5',
+    'S1',
+    'S2',
+    'S3',
+    'S4',
+    'S5',
+    'S6',
+    'S7',
+    'V1',
+    'V2',
+    'V3',
+    'V4',
+    'V5',
+    'V6',
+    'V7',
+    'V8',
   ];
 
   Math = Math;
@@ -76,33 +150,62 @@ export class ProductsPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.checkUserRole();
     this.loadProducts();
   }
 
+  private checkUserRole(): void {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        this.isAdmin =
+          decodedToken.IsAdmin === 'True' || decodedToken.IsAdmin === true;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        this.isAdmin = false;
+      }
+    } else {
+      this.isAdmin = false;
+    }
+  }
+
   loadProducts(): void {
+    if (this.isLoading) return;
+
+    this.isLoading = true;
+
     const filters = {
       pageNumber: this.currentPage,
       pageSize: this.itemsPerPage,
-      name: this.filterForm.value.name,
-      category: this.filterForm.value.category,
-      isbn: this.filterForm.value.isbn,
-      shelvingUnit: this.filterForm.value.shelvingUnit,
-      sortBy: this.filterForm.value.sortBy,
+      name: this.filterForm.value.name || '',
+      category: this.filterForm.value.category || '',
+      isbn: this.filterForm.value.isbn || '',
+      shelvingUnit: this.filterForm.value.shelvingUnit || '',
+      sortBy: this.filterForm.value.sortBy || '',
     };
 
     this.productService.getProductsPaginatedByFilter(filters).subscribe({
       next: (response: any) => {
-        this.displayedProducts = response.data;
+        this.displayedProducts = response.data || response || [];
 
-        this.checkNextPage(filters);
+        if (this.displayedProducts.length < this.itemsPerPage) {
+          this.hasNextPage = false;
+          this.isLoading = false;
+        } else {
+          this.checkIfNextPageExists(filters);
+        }
       },
       error: (error) => {
         console.error('Error loading products:', error);
+        this.displayedProducts = [];
+        this.hasNextPage = false;
+        this.isLoading = false;
       },
     });
   }
 
-  checkNextPage(currentFilters: any): void {
+  private checkIfNextPageExists(currentFilters: any): void {
     const nextPageFilters = {
       ...currentFilters,
       pageNumber: this.currentPage + 1,
@@ -112,11 +215,14 @@ export class ProductsPageComponent implements OnInit {
       .getProductsPaginatedByFilter(nextPageFilters)
       .subscribe({
         next: (response: any) => {
-          this.hasNextPage = response.data && response.data.length > 0;
+          const nextPageData = response.data || response || [];
+          this.hasNextPage = nextPageData.length > 0;
+          this.isLoading = false;
         },
         error: (error) => {
-          this.hasNextPage = false;
           console.error('Error checking next page:', error);
+          this.hasNextPage = false;
+          this.isLoading = false;
         },
       });
   }
@@ -143,14 +249,14 @@ export class ProductsPageComponent implements OnInit {
   }
 
   prevPage(): void {
-    if (this.currentPage > 1) {
+    if (this.currentPage > 1 && !this.isLoading) {
       this.currentPage--;
       this.loadProducts();
     }
   }
 
   nextPage(): void {
-    if (this.hasNextPage) {
+    if (this.hasNextPage && !this.isLoading) {
       this.currentPage++;
       this.loadProducts();
     }
