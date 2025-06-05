@@ -290,13 +290,15 @@ export class ProductDetailsPageComponent implements OnInit {
         this.reviewService
           .updateReview(this.reviewToEdit.id, updatedReview)
           .subscribe({
-            next: () => {
+            next: async () => {
               this.isSubmittingReview = false;
               this.showReviewForm = false;
               this.newReviewContent = '';
               this.newReviewRating = 0;
               this.reviewToEdit = null;
               this.loadReviews(this.currentPage);
+
+              await this.updateProductAverageRating();
             },
             error: (err) => {
               console.error('Error updating review:', err);
@@ -307,13 +309,14 @@ export class ProductDetailsPageComponent implements OnInit {
           });
       } else {
         const decodedToken: any = jwtDecode(token);
-        const userId =
-          decodedToken.id ||
-          decodedToken.Id ||
-          decodedToken.userId ||
-          decodedToken.UserId ||
-          decodedToken.sub ||
-          decodedToken.nameid;
+        const userId = decodedToken.unique_name;
+
+        if (!userId) {
+          this.reviewSubmitError =
+            'Unable to identify user. Please log in again.';
+          this.isSubmittingReview = false;
+          return;
+        }
 
         const review = {
           productId: this.productId,
@@ -324,12 +327,14 @@ export class ProductDetailsPageComponent implements OnInit {
         };
 
         this.reviewService.createReview(review).subscribe({
-          next: () => {
+          next: async () => {
             this.isSubmittingReview = false;
             this.showReviewForm = false;
             this.newReviewContent = '';
             this.newReviewRating = 0;
             this.loadReviews(1);
+
+            await this.updateProductAverageRating();
           },
           error: (err) => {
             console.error('Error creating review:', err);
@@ -343,6 +348,21 @@ export class ProductDetailsPageComponent implements OnInit {
       console.error('Error processing review:', error);
       this.isSubmittingReview = false;
       this.reviewSubmitError = 'An error occurred. Please try again.';
+    }
+  }
+
+  deleteReview(reviewId: string): void {
+    if (confirm('Are you sure you want to delete this review?')) {
+      this.reviewService.deleteReview(reviewId).subscribe({
+        next: async () => {
+          this.loadReviews(this.currentPage);
+          await this.updateProductAverageRating();
+        },
+        error: (err) => {
+          console.error('Error deleting review:', err);
+          this.reviewError = 'Failed to delete review';
+        },
+      });
     }
   }
 
@@ -365,27 +385,16 @@ export class ProductDetailsPageComponent implements OnInit {
         this.currentUserId = decodedToken.unique_name;
       } catch (error) {
         console.error('Error decoding token:', error);
+        this.currentUserId = null;
       }
+    } else {
+      this.currentUserId = null;
     }
   }
 
   isReviewAuthor(reviewUserId: string): boolean {
     const isAuthor = this.currentUserId === reviewUserId;
     return isAuthor;
-  }
-
-  deleteReview(reviewId: string): void {
-    if (confirm('Are you sure you want to delete this review?')) {
-      this.reviewService.deleteReview(reviewId).subscribe({
-        next: () => {
-          this.loadReviews(this.currentPage);
-        },
-        error: (err) => {
-          console.error('Error deleting review:', err);
-          this.reviewError = 'Failed to delete review';
-        },
-      });
-    }
   }
 
   editReview(review: any): void {
@@ -400,5 +409,95 @@ export class ProductDetailsPageComponent implements OnInit {
         reviewForm.scrollIntoView({ behavior: 'smooth' });
       }
     }, 100);
+  }
+
+  private async getAllReviewsForProduct(productId: string): Promise<any[]> {
+    let allReviews: any[] = [];
+    let currentPage = 1;
+    let hasMorePages = true;
+
+    while (hasMorePages) {
+      try {
+        const reviews = await this.reviewService
+          .getAllReviewsPaginatedById(productId, currentPage, this.pageSize)
+          .toPromise();
+
+        if (reviews && Array.isArray(reviews) && reviews.length > 0) {
+          allReviews = allReviews.concat(reviews);
+          currentPage++;
+
+          if (reviews.length < this.pageSize) {
+            hasMorePages = false;
+          }
+        } else {
+          hasMorePages = false;
+        }
+      } catch (error) {
+        console.error(`Error fetching page ${currentPage}:`, error);
+        hasMorePages = false;
+      }
+    }
+
+    console.log(
+      `Collected ${allReviews.length} total reviews from ${
+        currentPage - 1
+      } pages`
+    );
+    return allReviews;
+  }
+
+  private async updateProductAverageRating(): Promise<void> {
+    try {
+      const allReviews = await this.getAllReviewsForProduct(this.productId);
+
+      if (allReviews.length === 0) {
+        console.log('No reviews found for product');
+        if (this.product) {
+          const updatedProduct = {
+            ...this.product,
+            avgRating: 0,
+          };
+          await this.productService
+            .updateProduct(this.productId, updatedProduct)
+            .toPromise();
+          this.product.averageRating = 0;
+          console.log('Product average rating updated to 0 (no reviews)');
+        }
+        return;
+      }
+
+      const totalRating = allReviews.reduce(
+        (sum, review) => sum + review.rating,
+        0
+      );
+      const averageRating = totalRating / allReviews.length;
+
+      console.log(
+        `Calculated average rating: ${averageRating} from ${allReviews.length} reviews`
+      );
+      console.log(
+        'All ratings:',
+        allReviews.map((r) => r.rating)
+      );
+
+      if (this.product) {
+        const updatedProduct = {
+          ...this.product,
+          avgRating: Math.round(averageRating * 100) / 100,
+        };
+
+        await this.productService
+          .updateProduct(this.productId, updatedProduct)
+          .toPromise();
+
+        this.product.averageRating = updatedProduct.avgRating;
+
+        console.log(
+          `Product average rating updated to: ${updatedProduct.avgRating}`
+        );
+      }
+    } catch (error) {
+      console.error('Error updating product average rating:', error);
+    }
   }
 }
