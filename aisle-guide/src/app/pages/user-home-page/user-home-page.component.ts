@@ -7,6 +7,8 @@ import { CommonModule, Location } from '@angular/common';
 import { ProductService } from '../../services/product/product.service';
 import { Position, PathNode } from '../../models/position.model';
 import { ShoppingItem } from '../../models/shoppingitem.model';
+import { forkJoin } from 'rxjs';
+import { HistorylistService } from '../../services/historylist/historylist.service';
 
 @Component({
   selector: 'app-user-home-page',
@@ -53,6 +55,8 @@ export class UserHomePageComponent implements OnInit {
   pathToHighlight: Set<string> = new Set<string>();
   shoppingList: ShoppingItem[] = [];
   highlightedUnits: Set<string> = new Set<string>();
+
+  createdHistoryListIds: string[] = [];
 
   categories: string[] = [
     'Alcohol',
@@ -153,6 +157,7 @@ export class UserHomePageComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
+    private historyService: HistorylistService,
     private router: Router,
     private fb: FormBuilder,
     private location: Location
@@ -294,6 +299,7 @@ export class UserHomePageComponent implements OnInit {
       this.routeGenerated = false;
       this.pathToHighlight.clear();
       this.currentPosition = { row: 10, col: 0 };
+      this.createdHistoryListIds = [];
     }
   }
 
@@ -484,17 +490,104 @@ export class UserHomePageComponent implements OnInit {
     }
   }
 
-  generateOptimalRoute(): void {
-    this.currentPosition = { row: 10, col: 0 };
-    this.calculateNextRoute();
-    this.routeGenerated = true;
-  }
-
   isCellInPath(row: number, col: number): boolean {
     return this.pathToHighlight.has(`${row},${col}`);
   }
 
   isCurrentPosition(row: number, col: number): boolean {
     return this.currentPosition.row === row && this.currentPosition.col === col;
+  }
+
+  generateOptimalRoute(): void {
+    this.currentPosition = { row: 10, col: 0 };
+    this.calculateNextRoute();
+    this.routeGenerated = true;
+
+    this.createHistoryListsForShoppingList();
+  }
+
+  getCurrentUserId(): string | null {
+    const token =
+      localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.unique_name || null;
+    } catch (error) {
+      console.error('Error parsing token:', error);
+      return null;
+    }
+  }
+
+  createHistoryListsForShoppingList(): void {
+    const userId = this.getCurrentUserId();
+    if (!userId) {
+      console.error('Could not get current user ID');
+      return;
+    }
+
+    const currentDate = new Date();
+    const listName = 'My list';
+    const uniqueProducts = this.getUniqueProductsFromShoppingList();
+
+    if (uniqueProducts.length === 0) {
+      console.warn('No products in shopping list');
+      return;
+    }
+
+    const firstProductCommand = {
+      userId: userId,
+      productId: uniqueProducts[0].id,
+      name: listName,
+      createdAt: currentDate.toISOString(),
+    };
+
+    this.historyService.createHistoryList(firstProductCommand).subscribe({
+      next: (firstHistoryListId: string) => {
+        this.createdHistoryListIds = [firstHistoryListId];
+        if (uniqueProducts.length > 1) {
+          const remainingProducts = uniqueProducts.slice(1);
+
+          const remainingRequests = remainingProducts.map((product) => {
+            const command = {
+              id: firstHistoryListId,
+              userId: userId,
+              productId: product.id,
+              name: listName,
+              createdAt: currentDate.toISOString(),
+            };
+
+            return this.historyService.createHistoryList(command);
+          });
+
+          forkJoin(remainingRequests).subscribe({
+            next: (results: string[]) => {},
+            error: (error) => {
+              console.error('Error creating remaining history lists:', error);
+            },
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error creating first history list:', error);
+      },
+    });
+  }
+
+  getUniqueProductsFromShoppingList(): any[] {
+    const uniqueProductsMap = new Map();
+
+    this.shoppingList.forEach((item) => {
+      if (!uniqueProductsMap.has(item.id)) {
+        uniqueProductsMap.set(item.id, item);
+      }
+    });
+
+    return Array.from(uniqueProductsMap.values());
+  }
+
+  getCreatedHistoryListIds(): string[] {
+    return this.createdHistoryListIds;
   }
 }
