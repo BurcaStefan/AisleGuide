@@ -2,11 +2,45 @@
 
 <div class="user-dashboard">
     <div class="left-panel">
-        <div class="empty-container">
-            <h2 class="panel-title">Welcome to AisleGuide</h2>
-            <div class="placeholder-content">
-                <p>This space is reserved for future features.</p>
+        <div class="shopping-cart">
+            <h2 class="panel-title">Shopping List</h2>
+
+            @if(shoppingList.length === 0) {
+            <div class="empty-cart">
+                <i class="fa fa-shopping-cart"></i>
+                <p>Your shopping list is empty</p>
             </div>
+            } @else {
+            <div class="cart-items-container">
+                <div class="cart-items">
+                    @for(item of shoppingList; track item.id) {
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <h4>{{ item.name }}</h4>
+                            <p>{{ item.quantity }} x RON {{ item.price.toFixed(2) }}</p>
+                            <p class="cart-item-shelf">Shelf: {{ item.shelvingUnit || 'Not assigned' }}</p>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="btn-remove" (click)="removeFromCart(item.id)">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Total Items:</span>
+                        <span>{{ getTotalItems() }}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span>RON {{ getTotalPrice().toFixed(2) }}</span>
+                    </div>
+                </div>
+            </div>
+            }
         </div>
     </div>
 
@@ -25,7 +59,9 @@
                                 <i class="fas fa-cash-register"></i>
                             </div>
                             } @else if (gridData[row][col]) {
-                            <div class="shelf-cell">{{ gridData[row][col] }}</div>
+                            <div class="shelf-cell" [ngClass]="{'highlighted': isUnitHighlighted(gridData[row][col])}">
+                                {{ gridData[row][col] }}
+                            </div>
                             }
                         </td>
                         }
@@ -157,6 +193,9 @@
                         <span class="rating-value">{{ product.averageRating }}</span>
                     </div>
                     <div class="product-actions">
+                        <button class="btn-add-to-cart" (click)="addToCart(product, $event)">
+                            <i class="fa fa-cart-plus"></i> Add
+                        </button>
                         <button class="btn-view-details" (click)="viewProductDetails(product.id)">View Details</button>
                     </div>
                 </div>

@@ -1,13 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ClientHeaderComponent } from '../../components/layout/client-header/client-header.component';
 import { ClientFooterComponent } from '../../components/layout/client-footer/client-footer.component';
 import { CommonModule, Location } from '@angular/common';
 import { ProductService } from '../../services/product/product.service';
-import { finalize, timeout, catchError } from 'rxjs/operators';
-import { Subject, of } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+
 @Component({
   selector: 'app-user-home-page',
   standalone: true,
@@ -20,7 +18,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './user-home-page.component.html',
   styleUrl: './user-home-page.component.scss',
 })
-export class UserHomePageComponent implements OnInit, OnDestroy {
+export class UserHomePageComponent implements OnInit {
   rowIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   colIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
@@ -145,7 +143,8 @@ export class UserHomePageComponent implements OnInit, OnDestroy {
   ];
 
   Math = Math;
-  private destroy$ = new Subject<void>();
+  shoppingList: any[] = [];
+  highlightedUnits: Set<string> = new Set<string>();
 
   constructor(
     private productService: ProductService,
@@ -166,16 +165,9 @@ export class UserHomePageComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   loadProducts(): void {
-    // Anulăm orice cerere în curs înainte de a face una nouă
-    this.destroy$.next();
-
     if (this.isLoading) return;
+
     this.isLoading = true;
 
     const filters = {
@@ -188,34 +180,27 @@ export class UserHomePageComponent implements OnInit, OnDestroy {
       sortBy: this.filterForm.value.sortBy || '',
     };
 
-    this.productService
-      .getProductsPaginatedByFilter(filters)
-      .pipe(
-        takeUntil(this.destroy$), // Anulează cererea dacă destroy$ emite
-        timeout(10000), // Timeout de 10 secunde pentru a evita blocajele
-        catchError((error) => {
-          console.error('Request timed out or errored', error);
-          this.isLoading = false;
-          return of({ data: [] }); // Returnăm un rezultat gol în caz de eroare
-        }),
-        finalize(() => {
-          this.isLoading = false;
-        })
-      )
-      .subscribe({
-        next: (response: any) => {
-          const allProducts = response.data || response || [];
+    this.productService.getProductsPaginatedByFilter(filters).subscribe({
+      next: (response: any) => {
+        const allProducts = response.data || response || [];
 
-          if (allProducts.length > this.itemsPerPage) {
-            this.hasNextPage = true;
-            this.displayedProducts = allProducts.slice(0, this.itemsPerPage);
-          } else {
-            this.hasNextPage = false;
-            this.displayedProducts = allProducts;
-          }
-        },
-        // Nu mai setăm isLoading=false aici deoarece este gestionat de finalize()
-      });
+        if (allProducts.length > this.itemsPerPage) {
+          this.hasNextPage = true;
+          this.displayedProducts = allProducts.slice(0, this.itemsPerPage);
+        } else {
+          this.hasNextPage = false;
+          this.displayedProducts = allProducts;
+        }
+
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+        this.displayedProducts = [];
+        this.hasNextPage = false;
+        this.isLoading = false;
+      },
+    });
   }
 
   toggleFilterForm(): void {
@@ -243,12 +228,7 @@ export class UserHomePageComponent implements OnInit, OnDestroy {
     if (this.currentPage > 1 && !this.isLoading) {
       this.currentPage--;
 
-      try {
-        this.loadProducts();
-      } catch (error) {
-        console.error('Error navigating to previous page:', error);
-        this.forceRefresh();
-      }
+      this.loadProducts();
     }
   }
 
@@ -256,12 +236,7 @@ export class UserHomePageComponent implements OnInit, OnDestroy {
     if (this.hasNextPage && !this.isLoading) {
       this.currentPage++;
 
-      try {
-        this.loadProducts();
-      } catch (error) {
-        console.error('Error navigating to next page:', error);
-        this.forceRefresh();
-      }
+      this.loadProducts();
     }
   }
 
@@ -269,20 +244,59 @@ export class UserHomePageComponent implements OnInit, OnDestroy {
     this.router.navigate(['/details', productId]);
   }
 
-  forceRefresh(): void {
-    // Oprește orice cerere în curs
-    this.destroy$.next();
-    this.isLoading = false;
+  addToCart(product: any, event: Event): void {
+    event.stopPropagation(); // Previne click-ul pe produs
 
-    // Resetează starea și reîncarcă produsele
-    this.currentPage = 1;
+    const existingProduct = this.shoppingList.find((p) => p.id === product.id);
 
-    // Folosește Location service pentru a forța refresh-ul URL-ului actual
-    this.location.go(this.location.path());
+    if (existingProduct) {
+      existingProduct.quantity += 1;
+    } else {
+      this.shoppingList.push({
+        ...product,
+        quantity: 1,
+      });
+    }
 
-    // Dă un scurt timeout înainte de a reîncărca produsele
-    setTimeout(() => {
-      this.loadProducts();
-    }, 100);
+    if (product.shelvingUnit) {
+      this.highlightedUnits.add(product.shelvingUnit);
+    }
+  }
+
+  removeFromCart(productId: string): void {
+    const index = this.shoppingList.findIndex((p) => p.id === productId);
+    if (index >= 0) {
+      const product = this.shoppingList[index];
+
+      if (product.quantity > 1) {
+        product.quantity -= 1;
+      } else {
+        this.shoppingList.splice(index, 1);
+
+        if (product.shelvingUnit) {
+          const stillExists = this.shoppingList.some(
+            (p) => p.shelvingUnit === product.shelvingUnit
+          );
+          if (!stillExists) {
+            this.highlightedUnits.delete(product.shelvingUnit);
+          }
+        }
+      }
+    }
+  }
+
+  isUnitHighlighted(unit: string): boolean {
+    return this.highlightedUnits.has(unit);
+  }
+
+  getTotalItems(): number {
+    return this.shoppingList.reduce((total, item) => total + item.quantity, 0);
+  }
+
+  getTotalPrice(): number {
+    return this.shoppingList.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
   }
 }
