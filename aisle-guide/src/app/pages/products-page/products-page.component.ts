@@ -24,13 +24,10 @@ import { jwtDecode } from 'jwt-decode';
   ],
 })
 export class ProductsPageComponent implements OnInit {
-  allProducts: any[] = [];
   displayedProducts: any[] = [];
   currentPage: number = 1;
   itemsPerPage: number = 10;
-  totalPages: number = 1;
   hasNextPage: boolean = false;
-
   filterForm: FormGroup;
   showFilterForm: boolean = false;
   isAdmin: boolean = false;

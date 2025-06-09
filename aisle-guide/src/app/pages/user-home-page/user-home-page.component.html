@@ -1,5 +1,169 @@
 <app-client-header></app-client-header>
 
-<p>user-home-page works!</p>
+<div class="user-dashboard">
+    <div class="left-panel">
+        <div class="empty-container">
+            <h2 class="panel-title">Welcome to AisleGuide</h2>
+            <div class="placeholder-content">
+                <p>This space is reserved for future features.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="table-container">
+            <table class="grid-table">
+                <tbody>
+                    @for (row of rowIndices; track row) {
+                    <tr>
+                        @for (col of colIndices; track col) {
+                        <td>
+                            @if (row === 10 && col === 0) {
+                            <div class="arrow-cell">{{ gridData[row][col] }}</div>
+                            } @else if ((row === 1 || row === 4) && col === 0) {
+                            <div class="register-cell">
+                                <i class="fas fa-cash-register"></i>
+                            </div>
+                            } @else if (gridData[row][col]) {
+                            <div class="shelf-cell">{{ gridData[row][col] }}</div>
+                            }
+                        </td>
+                        }
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="products-search-section">
+    <div class="products-container">
+        <div class="products-header">
+            <h2>Search Products</h2>
+            <button class="btn-filter" (click)="toggleFilterForm()">
+                <i class="fa fa-filter"></i> Filter
+            </button>
+        </div>
+
+        @if(showFilterForm) {
+        <div class="filter-form">
+            <h3>Filter Products</h3>
+            <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+                <div class="filter-grid">
+                    <div class="form-group name-field">
+                        <label for="name">Name</label>
+                        <input id="name" type="text" formControlName="name" class="form-control"
+                            placeholder="Search by name">
+                    </div>
+
+                    <div class="form-group isbn-field">
+                        <label for="isbn">ISBN</label>
+                        <input id="isbn" type="text" formControlName="isbn" class="form-control"
+                            placeholder="Search by ISBN">
+                    </div>
+
+                    <div class="form-group category-field">
+                        <label for="category">Category</label>
+                        <select id="category" formControlName="category" class="form-control">
+                            <option value="">All Categories</option>
+                            @for (category of categories; track category) {
+                            <option [value]="category">{{ category }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group shelving-field">
+                        <label for="shelvingUnit">Shelving Unit</label>
+                        <select id="shelvingUnit" formControlName="shelvingUnit" class="form-control">
+                            <option value="">All Shelving Units</option>
+                            @for (unit of shelvingUnits; track unit) {
+                            <option [value]="unit">{{ unit }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group sort-options">
+                        <label>Sort By</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="priceAsc" formControlName="sortBy" value="price ascending">
+                                <label for="priceAsc">Price (Low to High)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="priceDesc" formControlName="sortBy" value="price descending">
+                                <label for="priceDesc">Price (High to Low)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="ratingAsc" formControlName="sortBy"
+                                    value="avg rating ascending">
+                                <label for="ratingAsc">Rating (Low to High)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="ratingDesc" formControlName="sortBy"
+                                    value="avg rating descending">
+                                <label for="ratingDesc">Rating (High to Low)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn-apply">Apply Filters</button>
+                    <button type="button" class="btn-reset" (click)="resetFilters()">Reset</button>
+                </div>
+            </form>
+        </div>
+        }
+
+        <div class="pagination">
+            <button [disabled]="currentPage === 1" (click)="prevPage()" class="page-nav">
+                <i class="fa fa-chevron-left"></i> Previous
+            </button>
+
+            <div class="page-info">
+                Page {{ currentPage }}
+            </div>
+
+            <button [disabled]="!hasNextPage" (click)="nextPage()" class="page-nav">
+                Next <i class="fa fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="products-list">
+            @for (product of displayedProducts; track product.id) {
+            <div class="product-card">
+                <div class="product-image">
+                    <img [src]="'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'"
+                        alt="{{ product.name }}">
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <div class="product-details">
+                        <p class="product-price">RON {{ product.price.toFixed(2) }}</p>
+                        <p class="product-category">Category: {{ product.category }}</p>
+                        <p class="product-shelf">Shelf: {{ product.shelvingUnit || 'Not assigned' }}</p>
+                    </div>
+                    <div class="product-rating">
+                        <span class="star-rating">
+                            @for (i of [1, 2, 3, 4, 5]; track i) {
+                            <i class="fa" [ngClass]="{
+                                'fa-star': i <= Math.floor(product.averageRating),
+                                'fa-star-half-o': (i > Math.floor(product.averageRating) && i <= product.averageRating + 0.5),
+                                'fa-star-o': i > product.averageRating + 0.5
+                            }"></i>
+                            }
+                        </span>
+                        <span class="rating-value">{{ product.averageRating }}</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-view-details" (click)="viewProductDetails(product.id)">View Details</button>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
 
 <app-client-footer></app-client-footer>

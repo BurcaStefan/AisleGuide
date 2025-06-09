@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import {
   HttpRequest,
   HttpHandler,
@@ -18,20 +19,25 @@ export class AuthInterceptor implements HttpInterceptor {
     null
   );
 
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   intercept(
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-
     if (this.isAuthEndpoint(request.url)) {
       return next.handle(request);
     }
 
-    const token = localStorage.getItem('token');
-    if (token) {
-      request = this.addToken(request, token);
+    if (isPlatformBrowser(this.platformId)) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        request = this.addToken(request, token);
+      }
     }
 
     return next.handle(request).pipe(
@@ -65,6 +71,12 @@ export class AuthInterceptor implements HttpInterceptor {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
+      if (!isPlatformBrowser(this.platformId)) {
+        return throwError(
+          () => 'Running on server, no refresh token available'
+        );
+      }
+
       const refreshToken = localStorage.getItem('refreshToken');
 
       if (!refreshToken) {
@@ -74,8 +86,10 @@ export class AuthInterceptor implements HttpInterceptor {
 
       return this.userService.refreshToken(refreshToken).pipe(
         switchMap((response) => {
-          localStorage.setItem('token', response.AccessToken);
-          localStorage.setItem('refreshToken', response.RefreshToken);
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('token', response.AccessToken);
+            localStorage.setItem('refreshToken', response.RefreshToken);
+          }
 
           this.refreshTokenSubject.next(response.AccessToken);
           return next.handle(this.addToken(request, response.AccessToken));
@@ -98,9 +112,10 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private redirectToLogin(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-
-    window.location.href = '/';
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      window.location.href = '/';
+    }
   }
 }
