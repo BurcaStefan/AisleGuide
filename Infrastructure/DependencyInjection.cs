@@ -50,6 +50,9 @@ namespace Infrastructure
             services.AddScoped<AccessTokenGenerator>();
             services.AddScoped<RefreshTokenGenerator>();
 
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailRepository, EmailRepository>();
+
             return services;
         }
     }

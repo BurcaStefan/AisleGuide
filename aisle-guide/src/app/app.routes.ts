@@ -8,6 +8,7 @@ import { ProductCreatePageComponent } from './pages/product-create-page/product-
 import { ProductsPageComponent } from './pages/products-page/products-page.component';
 import { ProfilePageComponent } from './pages/profile-page/profile-page.component';
 import { HistoryListPageComponent } from './pages/history-list-page/history-list-page.component';
+import { ContactPageComponent } from './pages/contact-page/contact-page.component';
 
 export const routes: Routes = [
   { path: '', component: LoginPageComponent },
@@ -20,4 +21,5 @@ export const routes: Routes = [
   { path: 'products', component: ProductsPageComponent },
   { path: 'profile', component: ProfilePageComponent },
   { path: 'history-list', component: HistoryListPageComponent },
+  { path: 'contact', component: ContactPageComponent },
 ];

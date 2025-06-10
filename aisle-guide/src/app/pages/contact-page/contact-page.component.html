@@ -1,0 +1,90 @@
+<app-client-header></app-client-header>
+
+<div class="contact-page-container">
+    <div class="contact-content">
+        <div class="contact-header">
+            <h1>Contact Us</h1>
+            <p>We're here to help! Send us a message and we'll get back to you.</p>
+        </div>
+
+        <div class="contact-form-container">
+            <form (ngSubmit)="submitContactForm()" class="contact-form">
+                <div class="form-group">
+                    <label for="subject">Subject *</label>
+                    <input type="text" id="subject" name="subject" [(ngModel)]="contactForm.subject" maxlength="50"
+                        required class="form-control" placeholder="Brief description of your inquiry"
+                        (blur)="validateField('subject')" (input)="clearFieldError('subject')">
+                    <div class="character-count">{{ contactForm.subject.length }}/50</div>
+                    @if (fieldErrors.subject) {
+                    <div class="field-error">{{ fieldErrors.subject }}</div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" [(ngModel)]="contactForm.phone" class="form-control"
+                        placeholder="Your phone number (optional)">
+                </div>
+
+                <div class="form-group">
+                    <label for="contactMethod">Preferred Contact Method *</label>
+                    <select id="contactMethod" name="contactMethod" [(ngModel)]="contactForm.contactMethod" required
+                        class="form-control" (blur)="validateField('contactMethod')"
+                        (change)="clearFieldError('contactMethod')">
+                        <option value="">Select contact method</option>
+                        <option value="phone">Phone</option>
+                        <option value="email">Email</option>
+                        <option value="no-contact">I don't want to be contacted</option>
+                    </select>
+                    @if (fieldErrors.contactMethod) {
+                    <div class="field-error">{{ fieldErrors.contactMethod }}</div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message *</label>
+                    <textarea id="message" name="message" [(ngModel)]="contactForm.message" maxlength="500" required
+                        rows="6" class="form-control" placeholder="Please describe your issue or inquiry in detail..."
+                        (blur)="validateField('message')" (input)="clearFieldError('message')"></textarea>
+                    <div class="character-count">{{ contactForm.message.length }}/500</div>
+                    @if (fieldErrors.message) {
+                    <div class="field-error">{{ fieldErrors.message }}</div>
+                    }
+                </div>
+
+                @if (submitError) {
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ submitError }}</span>
+                </div>
+                }
+
+                @if (submitSuccess) {
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ submitSuccess }}</span>
+                </div>
+                }
+
+                <div class="personal-data-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Personal data such as name, surname and email address will be taken from your account
+                        information.</span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-button" (click)="resetForm()">Reset</button>
+                    <button type="submit" class="submit-button" [disabled]="!isFormValid() || isSubmitting">
+                        @if (isSubmitting) {
+                        <i class="fas fa-spinner fa-spin"></i> Sending...
+                        } @else {
+                        <i class="fas fa-paper-plane"></i> Send Message
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<app-client-footer></app-client-footer>
