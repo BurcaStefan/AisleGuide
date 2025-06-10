@@ -1,0 +1,98 @@
+<app-client-header></app-client-header>
+
+<div class="history-page-container">
+    <div class="history-content">
+        <div class="header-section">
+            <h1>Shopping History</h1>
+            <p>Your previous shopping lists</p>
+        </div>
+
+        @if (isLoading) {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Loading your shopping history...</p>
+        </div>
+        }
+
+        @if (!isLoading && historyLists.length === 0) {
+        <div class="empty-state">
+            <i class="fa fa-history"></i>
+            <h3>No Shopping History</h3>
+            <p>You haven't completed any shopping trips yet.</p>
+        </div>
+        }
+
+        @if (!isLoading && historyLists.length > 0) {
+        <div class="history-lists-container">
+            @for (historyList of historyLists; track historyList.id) {
+            <div class="history-list-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        @if (!historyList.isEditing) {
+                        <h3>{{ historyList.name }}</h3>
+                        } @else {
+                        <input type="text" class="edit-input" [(ngModel)]="editingListName"
+                            (keyup.enter)="saveEdit(historyList)" (keyup.escape)="cancelEdit(historyList)" #editInput>
+                        }
+
+                        <div class="header-meta">
+                            <span class="date">
+                                <i class="fa fa-calendar"></i>
+                                {{ historyList.createdAt | date:'medium' }}
+                            </span>
+                            <span class="product-count">
+                                <i class="fa fa-shopping-cart"></i>
+                                {{ historyList.productCount }} products
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        @if (!historyList.isEditing) {
+                        <button class="action-btn edit-btn" (click)="startEdit(historyList)" title="Edit List">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" (click)="deleteList(historyList)" title="Delete List">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                        } @else {
+                        <button class="action-btn save-btn" (click)="saveEdit(historyList)" title="Save">
+                            <i class="fa fa-check"></i>
+                        </button>
+                        <button class="action-btn cancel-btn" (click)="cancelEdit(historyList)" title="Cancel">
+                            <i class="fa fa-times"></i>
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <h4>Products:</h4>
+                    <div class="products-list">
+                        @for (productName of historyList.productNames; track $index) {
+                        <span class="product-item">{{ productName }}</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+
+        <div class="pagination">
+            <button [disabled]="currentPage === 1 || isLoading" (click)="prevPage()" class="page-nav">
+                <i class="fa fa-chevron-left"></i> Previous
+            </button>
+
+            <div class="page-info">
+                Page {{ currentPage }}
+            </div>
+
+            <button [disabled]="!hasNextPage || isLoading" (click)="nextPage()" class="page-nav">
+                Next <i class="fa fa-chevron-right"></i>
+            </button>
+        </div>
+        }
+    </div>
+</div>
+
+<app-client-footer></app-client-footer>

@@ -182,7 +182,7 @@ export class UserHomePageComponent implements OnInit {
 
     const filters = {
       pageNumber: this.currentPage,
-      pageSize: this.itemsPerPage + 1,
+      pageSize: this.itemsPerPage,
       name: this.filterForm.value.name || '',
       category: this.filterForm.value.category || '',
       isbn: this.filterForm.value.isbn || '',
@@ -193,16 +193,14 @@ export class UserHomePageComponent implements OnInit {
     this.productService.getProductsPaginatedByFilter(filters).subscribe({
       next: (response: any) => {
         const allProducts = response.data || response || [];
+        this.displayedProducts = allProducts;
 
-        if (allProducts.length > this.itemsPerPage) {
-          this.hasNextPage = true;
-          this.displayedProducts = allProducts.slice(0, this.itemsPerPage);
+        if (allProducts.length === this.itemsPerPage) {
+          this.checkNextPageAvailability();
         } else {
           this.hasNextPage = false;
-          this.displayedProducts = allProducts;
+          this.isLoading = false;
         }
-
-        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading products:', error);
@@ -211,6 +209,33 @@ export class UserHomePageComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  private checkNextPageAvailability(): void {
+    const nextPageFilters = {
+      pageNumber: this.currentPage + 1,
+      pageSize: 1,
+      name: this.filterForm.value.name || '',
+      category: this.filterForm.value.category || '',
+      isbn: this.filterForm.value.isbn || '',
+      shelvingUnit: this.filterForm.value.shelvingUnit || '',
+      sortBy: this.filterForm.value.sortBy || '',
+    };
+
+    this.productService
+      .getProductsPaginatedByFilter(nextPageFilters)
+      .subscribe({
+        next: (response: any) => {
+          const nextPageProducts = response.data || response || [];
+          this.hasNextPage = nextPageProducts.length > 0;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error checking next page:', error);
+          this.hasNextPage = false;
+          this.isLoading = false;
+        },
+      });
   }
 
   toggleFilterForm(): void {
@@ -237,7 +262,6 @@ export class UserHomePageComponent implements OnInit {
   prevPage(): void {
     if (this.currentPage > 1 && !this.isLoading) {
       this.currentPage--;
-
       this.loadProducts();
     }
   }
@@ -245,7 +269,6 @@ export class UserHomePageComponent implements OnInit {
   nextPage(): void {
     if (this.hasNextPage && !this.isLoading) {
       this.currentPage++;
-
       this.loadProducts();
     }
   }

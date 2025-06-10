@@ -7,6 +7,7 @@ import { ProductDetailsPageComponent } from './pages/product-details-page/produc
 import { ProductCreatePageComponent } from './pages/product-create-page/product-create-page.component';
 import { ProductsPageComponent } from './pages/products-page/products-page.component';
 import { ProfilePageComponent } from './pages/profile-page/profile-page.component';
+import { HistoryListPageComponent } from './pages/history-list-page/history-list-page.component';
 
 export const routes: Routes = [
   { path: '', component: LoginPageComponent },
@@ -18,4 +19,5 @@ export const routes: Routes = [
   { path: 'create-product', component: ProductCreatePageComponent },
   { path: 'products', component: ProductsPageComponent },
   { path: 'profile', component: ProfilePageComponent },
+  { path: 'history-list', component: HistoryListPageComponent },
 ];
