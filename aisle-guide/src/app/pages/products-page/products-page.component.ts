@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product/product.service';
+import { FavoriteService } from '../../services/favorite/favorite.service';
 import { AdminHeaderComponent } from '../../components/layout/admin-header/admin-header.component';
 import { AdminFooterComponent } from '../../components/layout/admin-footer/admin-footer.component';
 import { ClientFooterComponent } from '../../components/layout/client-footer/client-footer.component';
@@ -32,6 +33,7 @@ export class ProductsPageComponent implements OnInit {
   showFilterForm: boolean = false;
   isAdmin: boolean = false;
   isLoading: boolean = false;
+  favoriteProductIds: Set<string> = new Set();
 
   categories: string[] = [
     'Alcohol',
@@ -134,6 +136,7 @@ export class ProductsPageComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
+    private favoriteService: FavoriteService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -149,6 +152,9 @@ export class ProductsPageComponent implements OnInit {
   ngOnInit(): void {
     this.checkUserRole();
     this.loadProducts();
+    if (!this.isAdmin) {
+      this.loadUserFavorites();
+    }
   }
 
   private checkUserRole(): void {
@@ -217,7 +223,6 @@ export class ProductsPageComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error checking next page:', error);
           this.hasNextPage = false;
           this.isLoading = false;
         },
@@ -261,5 +266,60 @@ export class ProductsPageComponent implements OnInit {
 
   viewProductDetails(productId: string): void {
     this.router.navigate(['/details', productId]);
+  }
+
+  toggleFavorite(productId: string): void {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userId = payload.unique_name || payload.sub;
+    if (!userId) return;
+
+    if (this.favoriteProductIds.has(productId)) {
+      this.favoriteService.deleteFavorite(userId, productId).subscribe({
+        next: () => {
+          this.favoriteProductIds.delete(productId);
+        },
+        error: (error) => {
+          console.error('Error removing from favorites:', error);
+        },
+      });
+    } else {
+      this.favoriteService.createFavorite(userId, productId).subscribe({
+        next: () => {
+          this.favoriteProductIds.add(productId);
+        },
+        error: (error) => {
+          console.error('Error adding to favorites:', error);
+        },
+      });
+    }
+  }
+
+  isFavorite(productId: string): boolean {
+    return this.favoriteProductIds.has(productId);
+  }
+
+  private loadUserFavorites(): void {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userId = payload.unique_name || payload.sub;
+    if (!userId) return;
+
+    this.favoriteService
+      .getFavoriteProductsByUserId(userId, 1, 1000)
+      .subscribe({
+        next: (favorites) => {
+          this.favoriteProductIds = new Set(
+            favorites.map((fav) => fav.productId)
+          );
+        },
+        error: (error) => {
+          console.error('Error loading user favorites:', error);
+        },
+      });
   }
 }

@@ -103,11 +103,17 @@
                 <div class="product-image">
                     <img [src]="'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'"
                         alt="{{ product.name }}">
+                    @if (!isAdmin) {
+                    <button class="favorite-btn" (click)="toggleFavorite(product.id)"
+                        [class.active]="isFavorite(product.id)">
+                        <i class="fa fa-heart"></i>
+                    </button>
+                    }
                 </div>
                 <div class="product-info">
                     <h3>{{ product.name }}</h3>
                     <div class="product-details">
-                        <p class="product-price">RON {{ product.price.toFixed(2) }}</p>
+                        <p class="product-price">€ {{ product.price.toFixed(2) }}</p>
                         <p class="product-category">Category: {{ product.category }}</p>
                         <p class="product-shelf">Shelf: {{ product.shelvingUnit || 'Not assigned' }}</p>
                     </div>

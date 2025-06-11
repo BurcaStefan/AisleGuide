@@ -17,7 +17,7 @@
                     <div class="cart-item" [ngClass]="{'collected': item.collected}">
                         <div class="cart-item-info">
                             <h4>{{ item.name }}</h4>
-                            <p>{{ item.quantity }} x RON {{ item.price.toFixed(2) }}</p>
+                            <p>{{ item.quantity }} x € {{ item.price.toFixed(2) }}</p>
                             <p class="cart-item-shelf">Shelf: {{ item.shelvingUnit || 'Not assigned' }}</p>
                         </div>
                         <div class="cart-item-actions">
@@ -51,7 +51,7 @@
                     }
                     <div class="summary-row total">
                         <span>Total:</span>
-                        <span>RON {{ getTotalPrice().toFixed(2) }}</span>
+                        <span>€ {{ getTotalPrice().toFixed(2) }}</span>
                     </div>
                     @if (!routeGenerated && shoppingList.length > 0) {
                     <button class="btn-generate-route" (click)="generateOptimalRoute()">
@@ -216,7 +216,7 @@
                 <div class="product-info">
                     <h3>{{ product.name }}</h3>
                     <div class="product-details">
-                        <p class="product-price">RON {{ product.price.toFixed(2) }}</p>
+                        <p class="product-price">€ {{ product.price.toFixed(2) }}</p>
                         <p class="product-category">Category: {{ product.category }}</p>
                         <p class="product-shelf">Shelf: {{ product.shelvingUnit || 'Not assigned' }}</p>
                     </div>

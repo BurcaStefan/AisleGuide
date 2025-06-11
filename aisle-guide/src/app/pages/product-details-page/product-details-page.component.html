@@ -44,7 +44,7 @@
 
                     <p class="product-price">
                         @if (!isEditing) {
-                        RON&nbsp;{{ product.price | number:'1.2-2' }}
+                        €&nbsp;{{ product.price | number:'1.2-2' }}
                         } @else {
                         <input type="number" class="edit-in-place price-input" [(ngModel)]="editedProduct!.price"
                             step="0.01">
