@@ -1,0 +1,113 @@
+<app-client-header></app-client-header>
+
+<div class="dashboard-container">
+    <!-- Container stânga - Produse Favorite -->
+    <div class="left-panel">
+        <div class="panel-content">
+            <div class="panel-header">
+                <h2>Favorite Products</h2>
+                <p class="panel-subtitle">Your saved favorite items</p>
+            </div>
+
+            @if(recommendedProducts.length === 0) {
+            <div class="empty-state">
+                <i class="fa fa-heart-o empty-icon"></i>
+                <p>No favorite products yet</p>
+                <span>Start adding products to your favorites!</span>
+            </div>
+            } @else {
+            <div class="products-list">
+                @for (product of recommendedProducts; track product.id) {
+                <div class="product-card">
+                    <div class="product-image">
+                        <img [src]="'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'"
+                            alt="{{ product.name }}">
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ product.name }}</h3>
+                        <div class="product-details">
+                            <p class="product-price">RON {{ product.price.toFixed(2) }}</p>
+                            <p class="product-category">Category: {{ product.category }}</p>
+                            <p class="product-shelf">Shelf: {{ product.shelvingUnit || 'Not assigned' }}</p>
+                        </div>
+                        <div class="product-rating">
+                            <span class="star-rating">
+                                @for (i of [1, 2, 3, 4, 5]; track i) {
+                                <i class="fa" [ngClass]="{
+                                    'fa-star': i <= Math.floor(product.averageRating || 0),
+                                    'fa-star-half-o': (i > Math.floor(product.averageRating || 0) && i <= (product.averageRating || 0) + 0.5),
+                                    'fa-star-o': i > (product.averageRating || 0) + 0.5
+                                }"></i>
+                                }
+                            </span>
+                            <span class="rating-value">{{ product.averageRating || 'N/A' }}</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-view-details" (click)="viewProductDetails(product.id)">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Container dreapta - Produse Sugerate -->
+    <div class="right-panel">
+        <div class="panel-content">
+            <div class="panel-header">
+                <h2>Suggested Products</h2>
+                <p class="panel-subtitle">Recommended items for you</p>
+            </div>
+
+            @if(suggestedProducts.length === 0) {
+            <div class="empty-state">
+                <i class="fa fa-lightbulb-o empty-icon"></i>
+                <p>No suggestions available</p>
+                <span>Check back later for recommendations!</span>
+            </div>
+            } @else {
+            <div class="products-list">
+                @for (product of suggestedProducts; track product.id) {
+                <div class="product-card">
+                    <div class="product-image">
+                        <img [src]="'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'"
+                            alt="{{ product.name }}">
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ product.name }}</h3>
+                        <div class="product-details">
+                            <p class="product-price">RON {{ product.price.toFixed(2) }}</p>
+                            <p class="product-category">Category: {{ product.category }}</p>
+                            <p class="product-shelf">Shelf: {{ product.shelvingUnit || 'Not assigned' }}</p>
+                        </div>
+                        <div class="product-rating">
+                            <span class="star-rating">
+                                @for (i of [1, 2, 3, 4, 5]; track i) {
+                                <i class="fa" [ngClass]="{
+                                    'fa-star': i <= Math.floor(product.averageRating || 0),
+                                    'fa-star-half-o': (i > Math.floor(product.averageRating || 0) && i <= (product.averageRating || 0) + 0.5),
+                                    'fa-star-o': i > (product.averageRating || 0) + 0.5
+                                }"></i>
+                                }
+                            </span>
+                            <span class="rating-value">{{ product.averageRating || 'N/A' }}</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-view-details" (click)="viewProductDetails(product.id)">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<app-client-footer></app-client-footer>
