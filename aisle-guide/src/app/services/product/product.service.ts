@@ -60,4 +60,21 @@ export class ProductService {
       params: queryParams,
     });
   }
+
+  public getRecommendedProducts(
+    id: string,
+    topN: number = 20
+  ): Observable<Product[]> {
+    const token = localStorage.getItem('token');
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get<Product[]>(
+      `${this.productUrl}/recommendations/${id}?topN=${topN}`,
+      { headers }
+    );
+  }
 }
