@@ -10,5 +10,6 @@ namespace Domain.Repositories
         Task<Result<Guid>> AddAsync(Product product);
         Task<Result<bool>> UpdateAsync(Product product);
         Task<Result<bool>> DeleteAsync(Guid id);
+        Task<Result<IEnumerable<Product>>> GetRecommendedProductsAsync(Guid userId, int topN = 20);
     }
 }

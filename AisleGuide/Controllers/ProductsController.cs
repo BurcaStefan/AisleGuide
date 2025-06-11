@@ -2,6 +2,7 @@
 using Application.Use_Cases.Commands.ProductCommands;
 using Application.Use_Cases.Queries.ProductQueries;
 using Domain.Common;
+using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -94,6 +95,20 @@ namespace AisleGuide.Controllers
             {
                 return BadRequest(result.ErrorMessage);
             }
+            return Ok(result.Data);
+        }
+
+        [HttpGet("recommendations/{userId}")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetRecommendedProducts(Guid userId, [FromQuery] int topN = 20)
+        {
+            var query = new GetProductRecommendationsQuery { UserId = userId, TopN = topN };
+            var result = await mediator.Send(query);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
             return Ok(result.Data);
         }
     }
