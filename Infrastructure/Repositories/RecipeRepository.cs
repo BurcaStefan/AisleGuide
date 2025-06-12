@@ -34,13 +34,13 @@ namespace Infrastructure.Repositories
                                  $"You do not have to use all of them. " +
                                  $"Also, add up to 2-3 additional products (if you need) that are not in the given list and use them in the recipe. " +
                                  $"Respond ONLY with a JSON object containing three lists: " +
-                                 $"'usedIngredients' (the list of given ingredients you used), " +
+                                 $"'ingredients' (the list of given ingredients you used), " +
                                  $"'additionalIngredients' (the list of extra products you added), " +
                                  $"'steps' (the preparation steps). " +
                                  $"Do not include anything else in your response except the JSON object. " +
                                  $"Example response: " +
                                  $"{{ " +
-                                 $"\"usedIngredients\": [\"chicken breast\", \"potatoes\", \"garlic\"], " +
+                                 $"\"ingredients\": [\"chicken breast\", \"potatoes\", \"garlic\"], " +
                                  $"\"additionalIngredients\": [\"olive oil\", \"thyme\"], " +
                                  $"\"steps\": [\"Preheat the oven to 200°C.\", \"Season the chicken breast with salt and thyme.\", \"Place potatoes and garlic in a baking tray, drizzle with olive oil.\", \"Add the chicken breast and bake for 30 minutes.\"] " +
                                  $"}}"

@@ -11,7 +11,6 @@
         public string? ShelvingUnit { get; set; }
         public float? AverageRating { get; set; }
 
-        // Nutritional information
         public int Calories { get; set; }
         public float Protein { get; set; }
         public float Carbohydrates { get; set; }

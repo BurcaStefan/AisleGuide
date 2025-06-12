@@ -5,11 +5,14 @@ import { ClientHeaderComponent } from '../../components/layout/client-header/cli
 import { ClientFooterComponent } from '../../components/layout/client-footer/client-footer.component';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product/product.service';
+import { RecipeService } from '../../services/recipe/recipe.service';
 import { ShoppingItem } from '../../models/shoppingitem.model';
 import { HttpClient } from '@angular/common/http';
+import { RecipeResponseDto } from '../../models/recipe.model';
 
 interface Recipe {
   ingredients: string[];
+  additionalIngredients: string[];
   steps: string[];
 }
 
@@ -35,7 +38,7 @@ export class ChefRecipesPageComponent implements OnInit {
   isLoading: boolean = false;
   Math = Math;
 
-  shoppingList: ShoppingItem[] = [];
+  ingredientsList: ShoppingItem[] = [];
   generatedRecipe: Recipe | null = null;
   isGeneratingRecipe: boolean = false;
 
@@ -138,6 +141,7 @@ export class ChefRecipesPageComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
+    private recipeService: RecipeService,
     private router: Router,
     private fb: FormBuilder,
     private http: HttpClient
@@ -259,12 +263,12 @@ export class ChefRecipesPageComponent implements OnInit {
   addToCart(product: any, event: Event): void {
     event.stopPropagation();
 
-    const existingProduct = this.shoppingList.find((p) => p.id === product.id);
+    const existingProduct = this.ingredientsList.find((p) => p.id === product.id);
 
     if (existingProduct) {
       existingProduct.quantity += 1;
     } else {
-      this.shoppingList.push({
+      this.ingredientsList.push({
         ...product,
         quantity: 1,
         collected: false,
@@ -273,35 +277,35 @@ export class ChefRecipesPageComponent implements OnInit {
   }
 
   removeFromCart(productId: string): void {
-    const index = this.shoppingList.findIndex((p) => p.id === productId);
+    const index = this.ingredientsList.findIndex((p) => p.id === productId);
     if (index >= 0) {
-      const product = this.shoppingList[index];
+      const product = this.ingredientsList[index];
 
       if (product.quantity > 1) {
         product.quantity -= 1;
       } else {
-        this.shoppingList.splice(index, 1);
+        this.ingredientsList.splice(index, 1);
       }
     }
 
-    if (this.shoppingList.length === 0) {
+    if (this.ingredientsList.length === 0) {
       this.generatedRecipe = null;
     }
   }
 
   getTotalItems(): number {
-    return this.shoppingList.reduce((total, item) => total + item.quantity, 0);
+    return this.ingredientsList.reduce((total, item) => total + item.quantity, 0);
   }
 
   getTotalPrice(): number {
-    return this.shoppingList.reduce(
+    return this.ingredientsList.reduce(
       (total, item) => total + item.price * item.quantity,
       0
     );
   }
 
-  async generateRecipe(): Promise<void> {
-    if (this.shoppingList.length === 0) {
+  generateRecipe(): void {
+    if (this.ingredientsList.length === 0) {
       alert('Please add some products to your shopping list first!');
       return;
     }
@@ -309,56 +313,22 @@ export class ChefRecipesPageComponent implements OnInit {
     this.isGeneratingRecipe = true;
     this.generatedRecipe = null;
 
-    try {
-      const productNames = this.shoppingList.map((item) => item.name);
-      const prompt = `Create a recipe using these ingredients: ${productNames.join(
-        ', '
-      )}. 
-      You can use most of these ingredients but don't need to use all of them. 
-      You can also add 2-3 additional common ingredients if needed.
-      
-      Please format your response as JSON with this structure:
-      {
-        "ingredients": ["ingredient 1", "ingredient 2", ...],
-        "steps": ["step 1", "step 2", ...]
-      }
-      
-      Make sure the recipe is practical and delicious!`;
+    const productNames = this.ingredientsList.map((item) => item.name);
 
-      const response = await this.http
-        .post<any>('YOUR_GEMINI_API_ENDPOINT', {
-          prompt: prompt,
-        })
-        .toPromise();
-
-      this.generatedRecipe = this.parseGeminiResponse(response);
-    } catch (error) {
-      console.error('Error generating recipe:', error);
-      alert('Failed to generate recipe. Please try again.');
-    } finally {
-      this.isGeneratingRecipe = false;
-    }
-  }
-
-  private parseGeminiResponse(response: any): Recipe {
-    try {
-      if (response.ingredients && response.steps) {
-        return response;
-      }
-
-      const text = response.text || response.content || response;
-      const parsed = JSON.parse(text);
-
-      return {
-        ingredients: parsed.ingredients || [],
-        steps: parsed.steps || [],
-      };
-    } catch (error) {
-      console.error('Error parsing Gemini response:', error);
-      return {
-        ingredients: ['Error parsing ingredients'],
-        steps: ['Error parsing recipe steps'],
-      };
-    }
+    this.recipeService.generateRecipe(productNames).subscribe({
+      next: (response: RecipeResponseDto) => {
+        this.generatedRecipe = {
+          ingredients: response.ingredients,
+          additionalIngredients: response.additionalIngredients,
+          steps: response.steps,
+        };
+        this.isGeneratingRecipe = false;
+      },
+      error: (error) => {
+        console.error('Error generating recipe:', error);
+        alert('Failed to generate recipe. Please try again.');
+        this.isGeneratingRecipe = false;
+      },
+    });
   }
 }

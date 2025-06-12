@@ -4,5 +4,6 @@ export interface RecipeRequestDto {
 
 export interface RecipeResponseDto {
   ingredients: string[];
+  additionalIngredients: string[];
   steps: string[];
 }

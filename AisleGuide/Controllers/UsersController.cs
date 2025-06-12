@@ -104,10 +104,8 @@ namespace AisleGuide.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<string>> RefreshToken([FromBody] RefreshTokenRequest request)
         {
-            // Creează un command care va fi trimis către handler
             var command = new RefreshTokenCommand { Token = request.Token };
 
-            // Trimite command-ul către MediatR
             var result = await mediator.Send(command);
 
             if (!result.IsSuccess)
@@ -118,7 +116,6 @@ namespace AisleGuide.Controllers
             return Ok(result.Data);
         }
 
-        // Clasa pentru request
         public class RefreshTokenRequest
         {
             public string Token { get; set; } = string.Empty;
