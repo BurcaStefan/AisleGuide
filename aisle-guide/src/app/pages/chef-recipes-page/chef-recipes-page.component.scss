@@ -352,6 +352,7 @@
 .steps-section {
   h4 {
     color: #333;
+    margin-top: 0rem;
     margin-bottom: 1rem;
     font-size: 1.1rem;
     display: flex;
@@ -377,41 +378,48 @@
   }
 }
 
-.additional-ingredients {
-  .ingredients-list {
-    .additional-ingredient {
-      border-left: 4px solid #ff6b35;
-      background-color: #fff8f0;
-      position: relative;
+.shopping-ingredient::before {
+  content: "- ";
+  color: #4285f4;
+  font-weight: bold;
+  margin-right: 0.2rem;
+}
 
-      &::after {
-        content: "(additional)";
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 0.8rem;
-        color: #ff6b35;
-        font-style: italic;
-      }
-    }
-  }
+.additional-ingredient {
+  background-color: #f5f5f5;
+  color: #333;
+  padding-left: 0.7rem;
+  position: relative;
+}
+
+.additional-ingredient::before {
+  content: "- ";
+  color: #4285f4;
+  font-weight: bold;
+  margin-right: 0.2rem;
+}
+
+.additional-ingredient::after {
+  content: " (additional product)";
+  color: #ff6b35;
+  font-size: 0.85em;
+  font-style: italic;
+  margin-left: 0.3rem;
 }
 
 .ingredients-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 
   li {
-    margin-bottom: 0.5rem;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: #e9ecef;
-      transform: translateX(5px);
-    }
+    margin-bottom: 0.15rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.97rem;
+    position: relative;
+    background: none;
+    color: #333;
   }
 }
 
@@ -1072,11 +1080,28 @@ select.form-control {
 }
 
 @media (min-width: 480px) and (max-width: 1000px) {
+  .dashboard-container {
+    flex-direction: column;
+    padding: 15px;
+    margin: 15px 10px;
+    min-height: auto;
+    width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
   .left-panel {
     margin-right: 0;
     margin-bottom: 20px;
     width: 100%;
     padding: 15px;
     box-sizing: border-box;
+  }
+
+  .right-panel {
+    margin-left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px;
   }
 }

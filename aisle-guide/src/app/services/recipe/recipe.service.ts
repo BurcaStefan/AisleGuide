@@ -11,7 +11,7 @@ export class RecipeService {
 
   constructor(private http: HttpClient) {}
 
-  generateRecipe(ingredients: string[]): Observable<RecipeResponseDto> {
+  generateRecipe(ingredients: string): Observable<RecipeResponseDto> {
     const token = localStorage.getItem('token');
 
     const headers = new HttpHeaders({
@@ -20,7 +20,7 @@ export class RecipeService {
     });
 
     const request: RecipeRequestDto = {
-      ingredients: ingredients,
+      ingredients,
     };
 
     return this.http.post<RecipeResponseDto>(

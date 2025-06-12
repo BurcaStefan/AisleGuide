@@ -71,36 +71,27 @@
 
             @if (generatedRecipe) {
             <div class="recipe-container">
-                <div class="recipe-header">
-                    <h3><i class="fa fa-utensils"></i> Your Recipe</h3>
-                    <button class="btn-new-recipe" (click)="generateRecipe()" [disabled]="isGeneratingRecipe">
-                        <i class="fa fa-refresh"></i> New Recipe
-                    </button>
-                </div>
-
                 <div class="recipe-content">
                     <div class="ingredients-section">
                         <h4><i class="fa fa-list"></i> Ingredients</h4>
                         <div class="ingredients-container">
                             <div class="shopping-list-ingredients">
-                                <h5>From your ingredients list:</h5>
                                 <ul class="ingredients-list">
                                     @for (ingredient of generatedRecipe.ingredients; track ingredient) {
                                     <li class="shopping-ingredient">{{ ingredient }}</li>
                                     }
                                 </ul>
-                            </div>
-                            @if (generatedRecipe.additionalIngredients && generatedRecipe.additionalIngredients.length >
-                            0) {
-                            <div class="additional-ingredients">
-                                <h5>Additional ingredients (not in your list):</h5>
+                                @if (generatedRecipe.additionalIngredients &&
+                                generatedRecipe.additionalIngredients.length >
+                                0) {
                                 <ul class="ingredients-list">
                                     @for (ingredient of generatedRecipe.additionalIngredients; track ingredient) {
                                     <li class="additional-ingredient">{{ ingredient }}</li>
                                     }
                                 </ul>
+                                }
                             </div>
-                            }
+
                         </div>
                     </div>
 

@@ -263,7 +263,9 @@ export class ChefRecipesPageComponent implements OnInit {
   addToCart(product: any, event: Event): void {
     event.stopPropagation();
 
-    const existingProduct = this.ingredientsList.find((p) => p.id === product.id);
+    const existingProduct = this.ingredientsList.find(
+      (p) => p.id === product.id
+    );
 
     if (existingProduct) {
       existingProduct.quantity += 1;
@@ -294,7 +296,10 @@ export class ChefRecipesPageComponent implements OnInit {
   }
 
   getTotalItems(): number {
-    return this.ingredientsList.reduce((total, item) => total + item.quantity, 0);
+    return this.ingredientsList.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
   }
 
   getTotalPrice(): number {
@@ -305,17 +310,14 @@ export class ChefRecipesPageComponent implements OnInit {
   }
 
   generateRecipe(): void {
-    if (this.ingredientsList.length === 0) {
-      alert('Please add some products to your shopping list first!');
-      return;
-    }
-
     this.isGeneratingRecipe = true;
     this.generatedRecipe = null;
 
-    const productNames = this.ingredientsList.map((item) => item.name);
+    const productNamesString = this.ingredientsList
+      .map((item) => item.name)
+      .join(',');
 
-    this.recipeService.generateRecipe(productNames).subscribe({
+    this.recipeService.generateRecipe(productNamesString).subscribe({
       next: (response: RecipeResponseDto) => {
         this.generatedRecipe = {
           ingredients: response.ingredients,

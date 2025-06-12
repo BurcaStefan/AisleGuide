@@ -1,5 +1,5 @@
 export interface RecipeRequestDto {
-  ingredients: string[];
+  ingredients: string;
 }
 
 export interface RecipeResponseDto {
