@@ -49,6 +49,7 @@ namespace Infrastructure
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped<AccessTokenGenerator>();
             services.AddScoped<RefreshTokenGenerator>();
+            services.AddScoped<IRecipeRepository, RecipeRepository>();
 
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IEmailRepository, EmailRepository>();

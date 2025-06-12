@@ -10,6 +10,7 @@ import { ProfilePageComponent } from './pages/profile-page/profile-page.componen
 import { HistoryListPageComponent } from './pages/history-list-page/history-list-page.component';
 import { ContactPageComponent } from './pages/contact-page/contact-page.component';
 import { SuggestedItemsPageComponent } from './pages/suggested-items-page/suggested-items-page.component';
+import { ChefRecipesPageComponent } from './pages/chef-recipes-page/chef-recipes-page.component';
 
 export const routes: Routes = [
   { path: '', component: LoginPageComponent },
@@ -24,4 +25,5 @@ export const routes: Routes = [
   { path: 'history-list', component: HistoryListPageComponent },
   { path: 'contact', component: ContactPageComponent },
   { path: 'suggestes-items', component: SuggestedItemsPageComponent },
+  { path: 'chef-recipes', component: ChefRecipesPageComponent },
 ];

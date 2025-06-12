@@ -1,0 +1,239 @@
+<app-client-header></app-client-header>
+
+<div class="user-dashboard">
+    <div class="left-panel">
+        <div class="shopping-cart">
+            <h2 class="panel-title">Shopping List</h2>
+
+            @if(shoppingList.length === 0) {
+            <div class="empty-cart">
+                <i class="fa fa-shopping-cart"></i>
+                <p>Your shopping list is empty</p>
+            </div>
+            } @else {
+            <div class="cart-items-container">
+                <div class="cart-items">
+                    @for(item of shoppingList; track item.id) {
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <h4>{{ item.name }}</h4>
+                            <p>{{ item.quantity }} x € {{ item.price.toFixed(2) }}</p>
+                            <p class="cart-item-shelf">Shelf: {{ item.shelvingUnit || 'Not assigned' }}</p>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="btn-remove" (click)="removeFromCart(item.id)">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Total Items:</span>
+                        <span>{{ getTotalItems() }}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span>€ {{ getTotalPrice().toFixed(2) }}</span>
+                    </div>
+                    @if (shoppingList.length > 0 && !generatedRecipe) {
+                    <button class="btn-generate-recipe" (click)="generateRecipe()" [disabled]="isGeneratingRecipe">
+                        <i class="fa fa-magic"></i>
+                        @if (isGeneratingRecipe) {
+                        Generating Recipe...
+                        } @else {
+                        Generate Recipe
+                        }
+                    </button>
+                    } @else if (generatedRecipe) {
+                    <div class="recipe-status">
+                        <i class="fa fa-check-circle"></i> Recipe Generated
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+
+    <div class="right-panel">
+        @if (generatedRecipe) {
+        <div class="recipe-container">
+            <div class="recipe-header">
+                <h2><i class="fa fa-utensils"></i> Generated Recipe</h2>
+                <button class="btn-new-recipe" (click)="generateRecipe()" [disabled]="isGeneratingRecipe">
+                    <i class="fa fa-refresh"></i> New Recipe
+                </button>
+            </div>
+
+            <div class="recipe-content">
+                <div class="ingredients-section">
+                    <h3><i class="fa fa-list"></i> Ingredients</h3>
+                    <ul class="ingredients-list">
+                        @for (ingredient of generatedRecipe.ingredients; track ingredient) {
+                        <li>{{ ingredient }}</li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="steps-section">
+                    <h3><i class="fa fa-clipboard-list"></i> Preparation Steps</h3>
+                    <ol class="steps-list">
+                        @for (step of generatedRecipe.steps; track step) {
+                        <li>{{ step }}</li>
+                        }
+                    </ol>
+                </div>
+            </div>
+        </div>
+        } @else if (isGeneratingRecipe) {
+        <div class="loading-recipe">
+            <div class="loading-spinner">
+                <i class="fa fa-spinner fa-spin"></i>
+            </div>
+            <p>Generating your recipe...</p>
+        </div>
+        } @else {
+        <div class="recipe-placeholder">
+            <i class="fa fa-chef-hat"></i>
+            <p>Add products to your shopping list and generate a recipe!</p>
+        </div>
+        }
+    </div>
+</div>
+
+<div class="products-search-section">
+    <div class="products-container">
+        <div class="products-header">
+            <h2>Search Products</h2>
+            <button class="btn-filter" (click)="toggleFilterForm()">
+                <i class="fa fa-filter"></i> Filter
+            </button>
+        </div>
+
+        @if(showFilterForm) {
+        <div class="filter-form">
+            <h3>Filter Products</h3>
+            <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+                <div class="filter-grid">
+                    <div class="form-group name-field">
+                        <label for="name">Name</label>
+                        <input id="name" type="text" formControlName="name" class="form-control"
+                            placeholder="Search by name">
+                    </div>
+
+                    <div class="form-group isbn-field">
+                        <label for="isbn">ISBN</label>
+                        <input id="isbn" type="text" formControlName="isbn" class="form-control"
+                            placeholder="Search by ISBN">
+                    </div>
+
+                    <div class="form-group category-field">
+                        <label for="category">Category</label>
+                        <select id="category" formControlName="category" class="form-control">
+                            <option value="">All Categories</option>
+                            @for (category of categories; track category) {
+                            <option [value]="category">{{ category }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group shelving-field">
+                        <label for="shelvingUnit">Shelving Unit</label>
+                        <select id="shelvingUnit" formControlName="shelvingUnit" class="form-control">
+                            <option value="">All Shelving Units</option>
+                            @for (unit of shelvingUnits; track unit) {
+                            <option [value]="unit">{{ unit }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group sort-options">
+                        <label>Sort By</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="priceAsc" formControlName="sortBy" value="price ascending">
+                                <label for="priceAsc">Price (Low to High)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="priceDesc" formControlName="sortBy" value="price descending">
+                                <label for="priceDesc">Price (High to Low)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="ratingAsc" formControlName="sortBy"
+                                    value="avg rating ascending">
+                                <label for="ratingAsc">Rating (Low to High)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="ratingDesc" formControlName="sortBy"
+                                    value="avg rating descending">
+                                <label for="ratingDesc">Rating (High to Low)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn-apply">Apply Filters</button>
+                    <button type="button" class="btn-reset" (click)="resetFilters()">Reset</button>
+                </div>
+            </form>
+        </div>
+        }
+
+        <div class="pagination">
+            <button [disabled]="currentPage === 1" (click)="prevPage()" class="page-nav">
+                <i class="fa fa-chevron-left"></i> Previous
+            </button>
+
+            <div class="page-info">
+                Page {{ currentPage }}
+            </div>
+
+            <button [disabled]="!hasNextPage" (click)="nextPage()" class="page-nav">
+                Next <i class="fa fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="products-list">
+            @for (product of displayedProducts; track product.id) {
+            <div class="product-card">
+                <div class="product-image">
+                    <img [src]="'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'"
+                        alt="{{ product.name }}">
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <div class="product-details">
+                        <p class="product-price">€ {{ product.price.toFixed(2) }}</p>
+                        <p class="product-category">Category: {{ product.category }}</p>
+                        <p class="product-shelf">Shelf: {{ product.shelvingUnit || 'Not assigned' }}</p>
+                    </div>
+                    <div class="product-rating">
+                        <span class="star-rating">
+                            @for (i of [1, 2, 3, 4, 5]; track i) {
+                            <i class="fa" [ngClass]="{
+                                'fa-star': i <= Math.floor(product.averageRating),
+                                'fa-star-half-o': (i > Math.floor(product.averageRating) && i <= product.averageRating + 0.5),
+                                'fa-star-o': i > product.averageRating + 0.5
+                            }"></i>
+                            }
+                        </span>
+                        <span class="rating-value">{{ product.averageRating }}</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-add-to-cart" (click)="addToCart(product, $event)">
+                            <i class="fa fa-cart-plus"></i> Add
+                        </button>
+                        <button class="btn-view-details" (click)="viewProductDetails(product.id)">View Details</button>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<app-client-footer></app-client-footer>
