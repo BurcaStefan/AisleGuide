@@ -9,6 +9,6 @@ export interface SendForgotPasswordEmailCommand {
 }
 
 export interface SendEmailConfirmationCommand {
-  email: string;
-  userId: string;
+  UserEmail: string;
+  Code: string;
 }

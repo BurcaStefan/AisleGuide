@@ -61,6 +61,36 @@ label {
   }
 }
 
+.validation-code-row .validation-code-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.validation-code-row .form-control {
+  width: 75%;
+  min-width: 120px;
+}
+
+.btn-send-code {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: none;
+  background: #4285f4;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.btn-send-code:disabled {
+  background: #b3d0fc;
+  cursor: not-allowed;
+}
+
 @media (max-width: 479px) {
   .btn-primary,
   .btn-register {
