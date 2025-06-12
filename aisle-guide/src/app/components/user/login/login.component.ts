@@ -40,6 +40,10 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
+  navigateToForgotPassword() {
+    this.router.navigate(['/forgot-password']);
+  }
+
   login() {
     if (this.loginForm.invalid) {
       this.errorMessage = 'Please fill in all required fields correctly.';

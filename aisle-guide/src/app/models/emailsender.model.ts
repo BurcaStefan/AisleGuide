@@ -5,7 +5,8 @@ export interface SendContactEmailCommand {
 }
 
 export interface SendForgotPasswordEmailCommand {
-  email: string;
+  UserEmail: string;
+  Code: string;
 }
 
 export interface SendEmailConfirmationCommand {

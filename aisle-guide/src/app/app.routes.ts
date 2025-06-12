@@ -11,11 +11,13 @@ import { HistoryListPageComponent } from './pages/history-list-page/history-list
 import { ContactPageComponent } from './pages/contact-page/contact-page.component';
 import { SuggestedItemsPageComponent } from './pages/suggested-items-page/suggested-items-page.component';
 import { ChefRecipesPageComponent } from './pages/chef-recipes-page/chef-recipes-page.component';
+import { ForgotPasswordPageComponent } from './pages/forgot-password-page/forgot-password-page.component';
 
 export const routes: Routes = [
   { path: '', component: LoginPageComponent },
   { path: 'login', component: LoginPageComponent },
   { path: 'register', component: RegisterPageComponent },
+  { path: 'forgot-password', component: ForgotPasswordPageComponent },
   { path: 'home', component: UserHomePageComponent },
   { path: 'admin-home', component: AdminHomePageComponent },
   { path: 'details/:id', component: ProductDetailsPageComponent },

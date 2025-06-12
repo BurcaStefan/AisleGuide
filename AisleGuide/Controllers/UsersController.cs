@@ -60,6 +60,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpPut("id")]
+        [AllowAnonymous]
         public async Task<ActionResult<Result<bool>>> UpdateUser(Guid id, UpdateUserCommand command)
         {
             if(id != command.Id)
