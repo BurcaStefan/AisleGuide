@@ -9,6 +9,8 @@ import { Position, PathNode } from '../../models/position.model';
 import { ShoppingItem } from '../../models/shoppingitem.model';
 import { forkJoin } from 'rxjs';
 import { HistorylistService } from '../../services/historylist/historylist.service';
+import { Dialog, DialogModule } from '@angular/cdk/dialog';
+import { ProductDialogComponent } from '../../components/product/product-dialog/product-dialog.component';
 
 @Component({
   selector: 'app-user-home-page',
@@ -18,6 +20,7 @@ import { HistorylistService } from '../../services/historylist/historylist.servi
     ClientFooterComponent,
     CommonModule,
     ReactiveFormsModule,
+    DialogModule,
   ],
   templateUrl: './user-home-page.component.html',
   styleUrl: './user-home-page.component.scss',
@@ -160,7 +163,8 @@ export class UserHomePageComponent implements OnInit {
     private historyService: HistorylistService,
     private router: Router,
     private fb: FormBuilder,
-    private location: Location
+    private location: Location,
+    private dialog: Dialog
   ) {
     this.filterForm = this.fb.group({
       name: [''],
@@ -236,45 +240,6 @@ export class UserHomePageComponent implements OnInit {
           this.isLoading = false;
         },
       });
-  }
-
-  toggleFilterForm(): void {
-    this.showFilterForm = !this.showFilterForm;
-  }
-
-  applyFilters(): void {
-    this.currentPage = 1;
-    this.loadProducts();
-  }
-
-  resetFilters(): void {
-    this.filterForm.reset({
-      name: '',
-      category: '',
-      isbn: '',
-      shelvingUnit: '',
-      sortBy: '',
-    });
-    this.currentPage = 1;
-    this.loadProducts();
-  }
-
-  prevPage(): void {
-    if (this.currentPage > 1 && !this.isLoading) {
-      this.currentPage--;
-      this.loadProducts();
-    }
-  }
-
-  nextPage(): void {
-    if (this.hasNextPage && !this.isLoading) {
-      this.currentPage++;
-      this.loadProducts();
-    }
-  }
-
-  viewProductDetails(productId: string): void {
-    this.router.navigate(['/details', productId]);
   }
 
   addToCart(product: any, event: Event): void {
@@ -525,8 +490,17 @@ export class UserHomePageComponent implements OnInit {
     this.currentPosition = { row: 10, col: 0 };
     this.calculateNextRoute();
     this.routeGenerated = true;
+  }
 
+  finishShopping(): void {
     this.createHistoryListsForShoppingList();
+
+    this.shoppingList = [];
+    this.routeGenerated = false;
+    this.pathToHighlight.clear();
+    this.currentPosition = { row: 10, col: 0 };
+    this.highlightedUnits.clear();
+    this.createdHistoryListIds = [];
   }
 
   getCurrentUserId(): string | null {
@@ -612,5 +586,26 @@ export class UserHomePageComponent implements OnInit {
 
   getCreatedHistoryListIds(): string[] {
     return this.createdHistoryListIds;
+  }
+
+  openProductsDialog() {
+    const addProductCallback = (product: any) => {
+      this.addToCart(product, new Event('dialog-add'));
+    };
+
+    const dialogRef = this.dialog.open(ProductDialogComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'centered-dialog',
+      hasBackdrop: true,
+      data: { addProductCallback },
+    });
+
+    dialogRef.closed.subscribe((result: any) => {
+      if (result && result.action === 'add') {
+        this.addToCart(result.product, new Event('dialog-add'));
+      }
+    });
   }
 }
