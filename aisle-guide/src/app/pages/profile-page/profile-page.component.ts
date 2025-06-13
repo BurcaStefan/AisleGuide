@@ -323,7 +323,7 @@ export class ProfilePageComponent implements OnInit {
       id: this.userId,
       firstName: this.updateModel.firstName,
       lastName: this.updateModel.lastName,
-      email: this.updateModel.email,
+      email: this.email,
       password: this.currentPassword,
       isAdmin: this.isAdmin,
     };

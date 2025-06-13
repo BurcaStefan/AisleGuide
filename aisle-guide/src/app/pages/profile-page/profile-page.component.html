@@ -50,11 +50,7 @@
 
                 <div class="info-row">
                     <span class="label">Email:</span>
-                    @if (!isEditing) {
                     <span class="value">{{ email }}</span>
-                    } @else {
-                    <input type="email" class="edit-in-place" [(ngModel)]="updateModel.email">
-                    }
                 </div>
 
                 <div class="info-row">
