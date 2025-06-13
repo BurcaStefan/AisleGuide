@@ -29,8 +29,15 @@
 
     <div class="form-group">
         <label for="email">Email</label>
-        <input id="email" type="email" formControlName="email" class="form-control" autocomplete="off"
-            [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" />
+        <div class="email-input-group">
+            <input id="email" type="email" formControlName="email" class="form-control" autocomplete="off"
+                [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" />
+
+            <button type="button" class="btn-send-code" (click)="sendValidationCode()"
+                [disabled]="!registerForm.get('email')?.valid || loading">
+                Send Code
+            </button>
+        </div>
 
         @if(registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
         <div class="invalid-feedback">
@@ -80,16 +87,10 @@
 
     <div class="form-group validation-code-row">
         <label for="validationCode">Validation Code</label>
-        <div class="validation-code-group">
-            <input id="validationCode" type="text" formControlName="validationCode" class="form-control"
-                autocomplete="off"
-                [class.is-invalid]="registerForm.get('validationCode')?.invalid && registerForm.get('validationCode')?.touched" />
+        <input id="validationCode" type="text" formControlName="validationCode" class="form-control full-width"
+            autocomplete="off"
+            [class.is-invalid]="registerForm.get('validationCode')?.invalid && registerForm.get('validationCode')?.touched" />
 
-            <button type="button" class="btn-send-code" (click)="sendValidationCode()"
-                [disabled]="!registerForm.get('email')?.valid || loading">
-                Send Code
-            </button>
-        </div>
         @if(registerForm.get('validationCode')?.invalid && registerForm.get('validationCode')?.touched) {
         <div class="invalid-feedback">
             <div class="error-message">Validation code is required and must match the code sent to your email.</div>

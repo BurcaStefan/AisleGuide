@@ -89,7 +89,9 @@ body {
   }
 
   .background {
-    display: none;
+    width: 100%;
+    border-right: none;
+    z-index: -1;
   }
 
   .register-container {
@@ -102,6 +104,9 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     justify-content: space-between;
   }
 
