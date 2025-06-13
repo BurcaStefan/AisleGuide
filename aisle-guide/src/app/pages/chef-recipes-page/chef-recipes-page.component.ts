@@ -9,6 +9,8 @@ import { RecipeService } from '../../services/recipe/recipe.service';
 import { ShoppingItem } from '../../models/shoppingitem.model';
 import { HttpClient } from '@angular/common/http';
 import { RecipeResponseDto } from '../../models/recipe.model';
+import { Dialog, DialogModule } from '@angular/cdk/dialog';
+import { ProductDialogComponent } from '../../components/product/product-dialog/product-dialog.component';
 
 interface Recipe {
   ingredients: string[];
@@ -24,6 +26,7 @@ interface Recipe {
     ClientHeaderComponent,
     CommonModule,
     ReactiveFormsModule,
+    DialogModule,
   ],
   templateUrl: './chef-recipes-page.component.html',
   styleUrl: './chef-recipes-page.component.scss',
@@ -144,7 +147,8 @@ export class ChefRecipesPageComponent implements OnInit {
     private recipeService: RecipeService,
     private router: Router,
     private fb: FormBuilder,
-    private http: HttpClient
+    private http: HttpClient,
+    private dialog: Dialog
   ) {
     this.filterForm = this.fb.group({
       name: [''],
@@ -157,6 +161,33 @@ export class ChefRecipesPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+  }
+
+  startNewRecipe(): void {
+    this.ingredientsList = [];
+    this.generatedRecipe = null;
+    this.isGeneratingRecipe = false;
+  }
+
+  openProductsDialog() {
+    const addProductCallback = (product: any) => {
+      this.addToCart(product, new Event('dialog-add'));
+    };
+
+    const dialogRef = this.dialog.open(ProductDialogComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'centered-dialog',
+      hasBackdrop: true,
+      data: { addProductCallback },
+    });
+
+    dialogRef.closed.subscribe((result: any) => {
+      if (result && result.action === 'add') {
+        this.addToCart(result.product, new Event('dialog-add'));
+      }
+    });
   }
 
   loadProducts(): void {
