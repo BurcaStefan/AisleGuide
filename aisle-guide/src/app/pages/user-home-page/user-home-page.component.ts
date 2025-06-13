@@ -310,6 +310,151 @@ export class UserHomePageComponent implements OnInit {
     return this.shoppingList.filter((item) => item.collected).length;
   }
 
+  finishShopping(): void {
+    this.createHistoryListsForShoppingList();
+
+    this.shoppingList = [];
+    this.routeGenerated = false;
+    this.pathToHighlight.clear();
+    this.currentPosition = { row: 10, col: 0 };
+    this.highlightedUnits.clear();
+    this.createdHistoryListIds = [];
+  }
+
+  getCurrentUserId(): string | null {
+    const token =
+      localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.unique_name || null;
+    } catch (error) {
+      console.error('Error parsing token:', error);
+      return null;
+    }
+  }
+
+  createHistoryListsForShoppingList(): void {
+    const userId = this.getCurrentUserId();
+    if (!userId) {
+      console.error('Could not get current user ID');
+      return;
+    }
+
+    const currentDate = new Date();
+    const listName = 'My list';
+    const uniqueProducts = this.getUniqueProductsFromShoppingList();
+
+    if (uniqueProducts.length === 0) {
+      console.warn('No products in shopping list');
+      return;
+    }
+
+    const firstProductCommand = {
+      userId: userId,
+      productId: uniqueProducts[0].id,
+      name: listName,
+      createdAt: currentDate.toISOString(),
+    };
+
+    this.historyService.createHistoryList(firstProductCommand).subscribe({
+      next: (firstHistoryListId: string) => {
+        this.createdHistoryListIds = [firstHistoryListId];
+        if (uniqueProducts.length > 1) {
+          const remainingProducts = uniqueProducts.slice(1);
+
+          const remainingRequests = remainingProducts.map((product) => {
+            const command = {
+              id: firstHistoryListId,
+              userId: userId,
+              productId: product.id,
+              name: listName,
+              createdAt: currentDate.toISOString(),
+            };
+
+            return this.historyService.createHistoryList(command);
+          });
+
+          forkJoin(remainingRequests).subscribe({
+            next: (results: string[]) => {},
+            error: (error) => {
+              console.error('Error creating remaining history lists:', error);
+            },
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error creating first history list:', error);
+      },
+    });
+  }
+
+  getUniqueProductsFromShoppingList(): any[] {
+    const uniqueProductsMap = new Map();
+
+    this.shoppingList.forEach((item) => {
+      if (!uniqueProductsMap.has(item.id)) {
+        uniqueProductsMap.set(item.id, item);
+      }
+    });
+
+    return Array.from(uniqueProductsMap.values());
+  }
+
+  getCreatedHistoryListIds(): string[] {
+    return this.createdHistoryListIds;
+  }
+
+  openProductsDialog() {
+    const addProductCallback = (product: any) => {
+      this.addToCart(product, new Event('dialog-add'));
+    };
+
+    const dialogRef = this.dialog.open(ProductDialogComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'centered-dialog',
+      hasBackdrop: true,
+      data: { addProductCallback },
+    });
+
+    dialogRef.closed.subscribe((result: any) => {
+      if (result && result.action === 'add') {
+        this.addToCart(result.product, new Event('dialog-add'));
+      }
+    });
+  }
+
+  markProductCollected(item: ShoppingItem): void {
+    item.collected = true;
+
+    if (item.shelvingUnit) {
+      const shelfPositions = this.findShelfPositions([item.shelvingUnit]);
+      if (shelfPositions.length > 0) {
+        this.currentPosition = shelfPositions[0];
+      }
+      const otherProductsOnSameShelf = this.shoppingList.some(
+        (p) => p.shelvingUnit === item.shelvingUnit && !p.collected
+      );
+
+      if (!otherProductsOnSameShelf) {
+        this.highlightedUnits.delete(item.shelvingUnit);
+      }
+    }
+
+    this.calculateNextRoute();
+
+    if (this.getUncollectedItems() === 0) {
+      this.findPathToRegister();
+    }
+  }
+
+  getUncollectedItems(): number {
+    return this.shoppingList.filter((item) => !item.collected).length;
+  }
+
   //BFS
   findShortestPathBFS(
     start: Position,
@@ -426,17 +571,19 @@ export class UserHomePageComponent implements OnInit {
     return positions;
   }
 
-  markProductCollected(item: ShoppingItem): void {
-    item.collected = true;
+  findPathToRegister(): void {
+    const registerPositions = this.findRegisterPositions();
+    const result = this.findShortestPathBFS(
+      this.currentPosition,
+      registerPositions
+    );
 
-    if (item.shelvingUnit) {
-      const shelfPositions = this.findShelfPositions([item.shelvingUnit]);
-      if (shelfPositions.length > 0) {
-        this.currentPosition = shelfPositions[0];
-      }
+    this.pathToHighlight.clear();
+    if (result) {
+      result.path.forEach((position) => {
+        this.pathToHighlight.add(`${position.row},${position.col}`);
+      });
     }
-
-    this.calculateNextRoute();
   }
 
   calculateNextRoute(): void {
@@ -490,122 +637,5 @@ export class UserHomePageComponent implements OnInit {
     this.currentPosition = { row: 10, col: 0 };
     this.calculateNextRoute();
     this.routeGenerated = true;
-  }
-
-  finishShopping(): void {
-    this.createHistoryListsForShoppingList();
-
-    this.shoppingList = [];
-    this.routeGenerated = false;
-    this.pathToHighlight.clear();
-    this.currentPosition = { row: 10, col: 0 };
-    this.highlightedUnits.clear();
-    this.createdHistoryListIds = [];
-  }
-
-  getCurrentUserId(): string | null {
-    const token =
-      localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (!token) return null;
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.unique_name || null;
-    } catch (error) {
-      console.error('Error parsing token:', error);
-      return null;
-    }
-  }
-
-  createHistoryListsForShoppingList(): void {
-    const userId = this.getCurrentUserId();
-    if (!userId) {
-      console.error('Could not get current user ID');
-      return;
-    }
-
-    const currentDate = new Date();
-    const listName = 'My list';
-    const uniqueProducts = this.getUniqueProductsFromShoppingList();
-
-    if (uniqueProducts.length === 0) {
-      console.warn('No products in shopping list');
-      return;
-    }
-
-    const firstProductCommand = {
-      userId: userId,
-      productId: uniqueProducts[0].id,
-      name: listName,
-      createdAt: currentDate.toISOString(),
-    };
-
-    this.historyService.createHistoryList(firstProductCommand).subscribe({
-      next: (firstHistoryListId: string) => {
-        this.createdHistoryListIds = [firstHistoryListId];
-        if (uniqueProducts.length > 1) {
-          const remainingProducts = uniqueProducts.slice(1);
-
-          const remainingRequests = remainingProducts.map((product) => {
-            const command = {
-              id: firstHistoryListId,
-              userId: userId,
-              productId: product.id,
-              name: listName,
-              createdAt: currentDate.toISOString(),
-            };
-
-            return this.historyService.createHistoryList(command);
-          });
-
-          forkJoin(remainingRequests).subscribe({
-            next: (results: string[]) => {},
-            error: (error) => {
-              console.error('Error creating remaining history lists:', error);
-            },
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Error creating first history list:', error);
-      },
-    });
-  }
-
-  getUniqueProductsFromShoppingList(): any[] {
-    const uniqueProductsMap = new Map();
-
-    this.shoppingList.forEach((item) => {
-      if (!uniqueProductsMap.has(item.id)) {
-        uniqueProductsMap.set(item.id, item);
-      }
-    });
-
-    return Array.from(uniqueProductsMap.values());
-  }
-
-  getCreatedHistoryListIds(): string[] {
-    return this.createdHistoryListIds;
-  }
-
-  openProductsDialog() {
-    const addProductCallback = (product: any) => {
-      this.addToCart(product, new Event('dialog-add'));
-    };
-
-    const dialogRef = this.dialog.open(ProductDialogComponent, {
-      width: '900px',
-      maxWidth: '95vw',
-      maxHeight: '90vh',
-      panelClass: 'centered-dialog',
-      hasBackdrop: true,
-      data: { addProductCallback },
-    });
-
-    dialogRef.closed.subscribe((result: any) => {
-      if (result && result.action === 'add') {
-        this.addToCart(result.product, new Event('dialog-add'));
-      }
-    });
   }
 }
