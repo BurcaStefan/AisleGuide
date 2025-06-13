@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { EmailsenderService } from '../../../services/email-sender/emailsender.service';
 import { UserService } from '../../../services/user/user.service';
 import { Router } from '@angular/router';
@@ -45,15 +50,18 @@ export class ForgotPasswordComponent {
   }
 
   async sendValidationCode() {
+    sessionStorage.removeItem('forgotValidationCode');
     const emailControl = this.forgotForm.get('email');
     if (!emailControl?.valid) return;
 
-    this.validationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    this.validationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
     this.validationCodeSent = false;
     this.codeValidated = false;
 
     const hash = await this.hashCode(this.validationCode);
-    sessionStorage.setItem('forgotValidationCodeHash', hash);
+    sessionStorage.setItem('forgotValidationCode', hash);
 
     this.emailSender
       .sendForgotPasswordEmail({
@@ -67,7 +75,8 @@ export class ForgotPasswordComponent {
           this.errorMessage = '';
         },
         error: () => {
-          this.errorMessage = 'Failed to send validation code. Please try again.';
+          this.errorMessage =
+            'Failed to send validation code. Please try again.';
           this.successMessage = '';
         },
       });
@@ -81,7 +90,7 @@ export class ForgotPasswordComponent {
       return;
     }
     const inputHash = await this.hashCode(inputCode);
-    const savedHash = sessionStorage.getItem('forgotValidationCodeHash');
+    const savedHash = sessionStorage.getItem('forgotValidationCode');
     if (inputHash !== savedHash) {
       this.errorMessage = 'Invalid validation code.';
       this.successMessage = '';
@@ -123,7 +132,7 @@ export class ForgotPasswordComponent {
 
     this.userService.getAllUsers().subscribe({
       next: (users) => {
-        const user = users.find(u => u.email === this.forgotForm.value.email);
+        const user = users.find((u) => u.email === this.forgotForm.value.email);
         if (!user) {
           this.errorMessage = 'User not found.';
           this.loading = false;
@@ -132,9 +141,10 @@ export class ForgotPasswordComponent {
         const updatedUser = { ...user, password: newPassword };
         this.userService.updateUser(user.id, updatedUser).subscribe({
           next: () => {
-            this.successMessage = 'Password updated successfully! Redirecting to login...';
+            this.successMessage =
+              'Password updated successfully! Redirecting to login...';
             this.loading = false;
-            sessionStorage.removeItem('forgotValidationCodeHash');
+            sessionStorage.removeItem('forgotValidationCode');
             setTimeout(() => {
               this.router.navigate(['/login']);
             }, 1200);
@@ -142,13 +152,13 @@ export class ForgotPasswordComponent {
           error: () => {
             this.errorMessage = 'Failed to update password. Please try again.';
             this.loading = false;
-          }
+          },
         });
       },
       error: () => {
         this.errorMessage = 'Failed to find user. Please try again.';
         this.loading = false;
-      }
+      },
     });
   }
 
