@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { User } from '../../models/user.model';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ import { User } from '../../models/user.model';
 export class UserService {
   private userUrl = 'http://localhost:5045/api/Users';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   public login(
     email: string,
@@ -43,15 +44,15 @@ export class UserService {
   }
 
   public updateUser(id: string, user: User): Observable<boolean> {
-    const headers = this.getAuthHeaders();
     return this.http.put<boolean>(`${this.userUrl}/id?id=${id}`, user, {
-      headers,
+      headers: this.authService.getHeaders(),
     });
   }
 
   public deleteUser(id: string): Observable<void> {
-    const headers = this.getAuthHeaders();
-    return this.http.delete<void>(`${this.userUrl}/${id}`, { headers });
+    return this.http.delete<void>(`${this.userUrl}/${id}`, {
+      headers: this.authService.getHeaders(),
+    });
   }
 
   public refreshToken(
@@ -61,14 +62,6 @@ export class UserService {
       `${this.userUrl}/refresh`,
       { token }
     );
-  }
-
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
   }
 
   public getUserIdFromToken(token: string): string {

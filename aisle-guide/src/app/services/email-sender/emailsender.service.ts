@@ -6,6 +6,7 @@ import {
   SendForgotPasswordEmailCommand,
   SendEmailConfirmationCommand,
 } from '../../models/emailsender.model';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,25 +14,11 @@ import {
 export class EmailsenderService {
   private baseUrl = 'http://localhost:5045/api/Email';
 
-  constructor(private http: HttpClient) {}
-
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : '',
-    });
-  }
-
-  private getAnonymousHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-    });
-  }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   sendContactEmail(command: SendContactEmailCommand): Observable<any> {
     return this.http.post(`${this.baseUrl}/contact`, command, {
-      headers: this.getHeaders(),
+      headers: this.authService.getHeaders(),
     });
   }
 
@@ -39,7 +26,7 @@ export class EmailsenderService {
     command: SendForgotPasswordEmailCommand
   ): Observable<any> {
     return this.http.post(`${this.baseUrl}/forgot-password`, command, {
-      headers: this.getAnonymousHeaders(),
+      headers: this.authService.getAnonymousHeaders(),
     });
   }
 
@@ -47,7 +34,7 @@ export class EmailsenderService {
     command: SendEmailConfirmationCommand
   ): Observable<any> {
     return this.http.post(`${this.baseUrl}/confirm-email`, command, {
-      headers: this.getAnonymousHeaders(),
+      headers: this.authService.getAnonymousHeaders(),
     });
   }
 }

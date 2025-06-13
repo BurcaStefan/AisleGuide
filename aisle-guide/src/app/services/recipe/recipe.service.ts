@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RecipeRequestDto, RecipeResponseDto } from '../../models/recipe.model';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,16 +10,9 @@ import { RecipeRequestDto, RecipeResponseDto } from '../../models/recipe.model';
 export class RecipeService {
   private recipeUrl = 'http://localhost:5045/api/Recipe';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   generateRecipe(ingredients: string): Observable<RecipeResponseDto> {
-    const token = localStorage.getItem('token');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-
     const request: RecipeRequestDto = {
       ingredients,
     };
@@ -26,7 +20,7 @@ export class RecipeService {
     return this.http.post<RecipeResponseDto>(
       `${this.recipeUrl}/generate-recipe`,
       request,
-      { headers }
+      { headers: this.authService.getHeaders() }
     );
   }
 }

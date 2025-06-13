@@ -2,22 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Favorite } from '../../models/favorite.model';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FavoriteService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   favoriteUrl = 'http://localhost:5045/api/Favorites';
-
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : '',
-    });
-  }
 
   public getFavoriteProductsByUserId(
     userId: string,
@@ -30,7 +23,7 @@ export class FavoriteService {
       .set('pageSize', pageSize.toString());
 
     return this.http.get<any[]>(this.favoriteUrl, {
-      headers: this.getHeaders(),
+      headers: this.authService.getHeaders(),
       params: params,
     });
   }
@@ -42,7 +35,7 @@ export class FavoriteService {
     };
 
     return this.http.post<any>(this.favoriteUrl, command, {
-      headers: this.getHeaders(),
+      headers: this.authService.getHeaders(),
     });
   }
 
@@ -53,7 +46,7 @@ export class FavoriteService {
     return this.http.delete<boolean>(
       `${this.favoriteUrl}/${userId}/${productId}`,
       {
-        headers: this.getHeaders(),
+        headers: this.authService.getHeaders(),
       }
     );
   }

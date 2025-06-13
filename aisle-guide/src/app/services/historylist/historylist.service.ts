@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -8,16 +9,7 @@ import { Observable } from 'rxjs';
 export class HistorylistService {
   private historyUrl = 'http://localhost:5045/api/HistoryLists';
 
-  constructor(private http: HttpClient) {}
-
-  private getAuthHeaders(): HttpHeaders {
-    const token =
-      localStorage.getItem('token') || sessionStorage.getItem('token');
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    });
-  }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   getHistoryListByUserId(
     userId: string,
@@ -37,19 +29,22 @@ export class HistorylistService {
   }
 
   createHistoryList(command: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.post<any>(this.historyUrl, command, { headers });
+    return this.http.post<any>(this.historyUrl, command, {
+      headers: this.authService.getHeaders(),
+    });
   }
 
   deleteHistoryList(id: string): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.delete<any>(`${this.historyUrl}/${id}`, { headers });
+    return this.http.delete<any>(`${this.historyUrl}/${id}`, {
+      headers: this.authService.getHeaders(),
+    });
   }
 
   updateHistoryList(id: string, command: any): Observable<any> {
-    const headers = this.getAuthHeaders();
     command.id = id;
 
-    return this.http.put<any>(`${this.historyUrl}/${id}`, command, { headers });
+    return this.http.put<any>(`${this.historyUrl}/${id}`, command, {
+      headers: this.authService.getHeaders(),
+    });
   }
 }

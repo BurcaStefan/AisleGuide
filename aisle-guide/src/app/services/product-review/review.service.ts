@@ -31,14 +31,9 @@ export class ReviewService {
     rating: number;
     createdAt: Date;
   }): Observable<string> {
-    const token = localStorage.getItem('token');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+    return this.http.post<string>(this.reviewUrl, review, {
+      headers: this.authService.getHeaders(),
     });
-
-    return this.http.post<string>(this.reviewUrl, review, { headers });
   }
 
   public updateReview(
@@ -50,26 +45,14 @@ export class ReviewService {
       createdAt: string;
     }
   ): Observable<boolean> {
-    const token = localStorage.getItem('token');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-
     return this.http.put<boolean>(`${this.reviewUrl}/${id}`, review, {
-      headers,
+      headers: this.authService.getHeaders(),
     });
   }
 
   public deleteReview(id: string): Observable<boolean> {
-    const token = localStorage.getItem('token');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+    return this.http.delete<boolean>(`${this.reviewUrl}/${id}`, {
+      headers: this.authService.getHeaders(),
     });
-
-    return this.http.delete<boolean>(`${this.reviewUrl}/${id}`, { headers });
   }
 }

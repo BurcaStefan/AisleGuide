@@ -17,14 +17,9 @@ export class ProductService {
   }
 
   public createProduct(product: Product): Observable<string> {
-    const token = localStorage.getItem('token');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+    return this.http.post<string>(this.productUrl, product, {
+      headers: this.authService.getHeaders(),
     });
-
-    return this.http.post<string>(this.productUrl, product, { headers });
   }
 
   public getProductById(id: string): Observable<Product> {
@@ -32,26 +27,14 @@ export class ProductService {
   }
 
   public updateProduct(id: string, product: Product): Observable<any> {
-    const token = localStorage.getItem('token');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+    return this.http.put(`${this.productUrl}/${id}`, product, {
+      headers: this.authService.getHeaders(),
     });
-
-    return this.http.put(`${this.productUrl}/${id}`, product, { headers });
   }
 
   public deleteProduct(id: string): Observable<void> {
-    const token = localStorage.getItem('token');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-
     return this.http.delete<void>(`${this.productUrl}/${id}`, {
-      headers,
+      headers: this.authService.getHeaders(),
     });
   }
 
@@ -65,16 +48,9 @@ export class ProductService {
     id: string,
     topN: number = 20
   ): Observable<Product[]> {
-    const token = localStorage.getItem('token');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-
     return this.http.get<Product[]>(
       `${this.productUrl}/recommendations/${id}?topN=${topN}`,
-      { headers }
+      { headers: this.authService.getHeaders() }
     );
   }
 }
