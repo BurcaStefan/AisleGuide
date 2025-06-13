@@ -34,6 +34,11 @@ namespace Application.Utils
 
             CreateMap<Review, ReviewDto>().ReverseMap();
             CreateMap<CreateReviewCommand, Review>().ReverseMap();
+
+            CreateMap<Image,ImageDto>().ReverseMap();
+            CreateMap<CreateImageCommand, Image>().ReverseMap();
+            CreateMap<UpdateImageCommand, Image>().ReverseMap();
+            CreateMap<DeleteImageCommand, Image>().ReverseMap();
         }
     }
 }
