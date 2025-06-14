@@ -66,7 +66,7 @@ export class AdminHomePageComponent {
     this.selectedUnit = unitCode;
     this.error = null;
     this.currentPage = page;
-    this.productImages = {}; // Reset images when loading new products
+    this.productImages = {};
 
     const queryParams = {
       pageNumber: page,
@@ -81,7 +81,6 @@ export class AdminHomePageComponent {
         this.checkNextPage(unitCode, page + 1);
         this.isLoading = false;
 
-        // Load images for the products
         this.loadProductImages();
       },
       error: (err) => {
@@ -118,7 +117,6 @@ export class AdminHomePageComponent {
   }
 
   handleImageError(productId: string): void {
-    // Set to null instead of a default image so spinner shows
     this.productImages[productId] = null;
   }
 

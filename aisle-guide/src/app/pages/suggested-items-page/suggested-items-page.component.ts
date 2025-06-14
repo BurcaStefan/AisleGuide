@@ -7,6 +7,9 @@ import { Product } from '../../models/product.model';
 import { FavoriteService } from '../../services/favorite/favorite.service';
 import { ProductService } from '../../services/product/product.service';
 import { Favorite } from '../../models/favorite.model';
+import { ImageService } from '../../services/image/image.service';
+import { CloudinaryService } from '../../services/cloudinary/cloudinary.service';
+import { Image } from '../../models/image.model';
 
 @Component({
   selector: 'app-suggested-items-page',
@@ -31,6 +34,9 @@ export class SuggestedItemsPageComponent implements OnInit {
 
   favoriteProductIds: Set<string> = new Set();
 
+  productImages: { [key: string]: string | null } = {};
+  imagesLoading: { [key: string]: boolean } = {};
+
   isLoading: boolean = false;
   error: string = '';
   Math = Math;
@@ -38,7 +44,9 @@ export class SuggestedItemsPageComponent implements OnInit {
   constructor(
     private router: Router,
     private favoriteService: FavoriteService,
-    private productService: ProductService
+    private productService: ProductService,
+    private imageService: ImageService,
+    private cloudinaryService: CloudinaryService
   ) {}
 
   ngOnInit(): void {
@@ -111,6 +119,8 @@ export class SuggestedItemsPageComponent implements OnInit {
         this.recommendedProducts = products.filter(
           (p) => p !== undefined
         ) as Product[];
+
+        this.loadProductImages(this.recommendedProducts);
       })
       .catch((error) => {
         console.error('Error loading products:', error);
@@ -134,6 +144,8 @@ export class SuggestedItemsPageComponent implements OnInit {
         );
         this.updateSuggestedProductsPage();
         this.suggestedLoading = false;
+
+        this.loadProductImages(this.suggestedProducts);
       },
       error: (error) => {
         console.error('Error loading suggested products:', error);
@@ -145,6 +157,34 @@ export class SuggestedItemsPageComponent implements OnInit {
     });
   }
 
+  loadProductImages(products: Product[]): void {
+    products.forEach((product) => {
+      this.imagesLoading[product.id] = true;
+
+      this.imageService.getImageByEntityId(product.id).subscribe({
+        next: (image: Image) => {
+          if (image) {
+            const timestamp = new Date().getTime();
+            this.productImages[
+              product.id
+            ] = `https://res.cloudinary.com/${this.cloudinaryService.getCloudName()}/image/upload/Product/${
+              product.id
+            }.${image.fileExtension}?t=${timestamp}`;
+          }
+          this.imagesLoading[product.id] = false;
+        },
+        error: () => {
+          this.productImages[product.id] = null;
+          this.imagesLoading[product.id] = false;
+        },
+      });
+    });
+  }
+
+  handleImageError(productId: string): void {
+    this.productImages[productId] = null;
+  }
+  
   private updateSuggestedProductsPage(): void {
     const startIndex = (this.suggestedCurrentPage - 1) * this.suggestedPageSize;
     const endIndex = startIndex + this.suggestedPageSize;
@@ -152,6 +192,8 @@ export class SuggestedItemsPageComponent implements OnInit {
       startIndex,
       endIndex
     );
+
+    this.loadProductImages(this.suggestedProducts);
   }
 
   favoriteNextPage(): void {

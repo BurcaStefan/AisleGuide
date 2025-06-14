@@ -29,8 +29,18 @@
                 @for (product of recommendedProducts; track product.id) {
                 <div class="product-card">
                     <div class="product-image">
-                        <img [src]="'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'"
-                            alt="{{ product.name }}">
+                        @if (imagesLoading[product.id]) {
+                        <div class="image-loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                        } @else if (productImages[product.id]) {
+                        <img [src]="productImages[product.id]" alt="{{ product.name }}"
+                            (error)="handleImageError(product.id)">
+                        } @else {
+                        <div class="image-loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                        }
                         <button class="favorite-btn" (click)="toggleFavorite(product.id)"
                             [class.active]="isFavorite(product.id)">
                             <i class="fa fa-heart"></i>
@@ -96,8 +106,18 @@
                 @for (product of suggestedProducts; track product.id) {
                 <div class="product-card">
                     <div class="product-image">
-                        <img [src]="'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'"
-                            alt="{{ product.name }}">
+                        @if (imagesLoading[product.id]) {
+                        <div class="image-loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                        } @else if (productImages[product.id]) {
+                        <img [src]="productImages[product.id]" alt="{{ product.name }}"
+                            (error)="handleImageError(product.id)">
+                        } @else {
+                        <div class="image-loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                        }
                         <button class="favorite-btn" (click)="toggleFavorite(product.id)"
                             [class.active]="isFavorite(product.id)">
                             <i class="fa fa-heart"></i>
