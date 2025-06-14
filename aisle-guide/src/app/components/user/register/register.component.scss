@@ -118,6 +118,71 @@ label {
   cursor: not-allowed;
 }
 
+.image-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.file-input {
+  display: none;
+}
+
+.btn-upload {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #4285f4;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #3b78e7;
+  }
+}
+
+.image-preview {
+  position: relative;
+  max-width: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  img {
+    width: 100%;
+    display: block;
+  }
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 0, 0, 0.7);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 0, 0, 0.9);
+  }
+}
+
+.upload-button-container {
+  display: flex;
+  align-items: center;
+}
+
 @media (max-width: 479px) {
   .email-input-group {
     flex-direction: row;

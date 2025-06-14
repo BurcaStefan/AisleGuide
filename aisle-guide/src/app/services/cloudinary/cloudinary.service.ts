@@ -9,9 +9,8 @@ import { ImageService } from '../image/image.service';
   providedIn: 'root',
 })
 export class CloudinaryService {
-  private cloudName = 'your-cloud-name';
-  private uploadPreset = 'your-upload-preset';
-  private apiKey = 'your-api-key';
+  private cloudName = 'dctbo9lhm';
+  private uploadPreset = 'aisle_guide';
   private uploadUrl = `https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`;
 
   constructor(private http: HttpClient, private imageService: ImageService) {}
@@ -19,7 +18,8 @@ export class CloudinaryService {
   uploadImage(
     file: File,
     entityId: string,
-    entityType: string
+    entityType: string,
+    existingImageId?: string
   ): Observable<Image> {
     if (!file) {
       return throwError(() => new Error('No file selected'));
@@ -28,29 +28,34 @@ export class CloudinaryService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', this.uploadPreset);
-    const publicId = `${entityType.toLowerCase()}/${entityId}`;
+
+    const publicId = `${entityType}/${entityId}`;
     formData.append('public_id', publicId);
 
     const fileExtension = file.name.split('.').pop() || 'jpg';
-
     return this.http.post<any>(this.uploadUrl, formData).pipe(
-      switchMap((response) => {
+      switchMap((cloudinaryResponse) => {
+        console.log('Cloudinary response:', cloudinaryResponse);
+
+        if (existingImageId) {
+          return this.imageService.getImageById(existingImageId);
+        }
+
         const imageData = {
           entityId: entityId,
           entityType: entityType,
           fileExtension: fileExtension,
         };
 
-        return this.imageService.createImage(imageData);
-      }),
-      switchMap((imageId) => {
-        return this.imageService.getImageById(imageId);
+        return this.imageService
+          .createImage(imageData)
+          .pipe(
+            switchMap((imageId) => this.imageService.getImageById(imageId))
+          );
       }),
       catchError((error) => {
-        console.error('Error uploading image:', error);
-        return throwError(
-          () => new Error('Failed to upload image: ' + error.message)
-        );
+        console.error('Error during image upload:', error);
+        return throwError(() => new Error('Upload failed: ' + error.message));
       })
     );
   }

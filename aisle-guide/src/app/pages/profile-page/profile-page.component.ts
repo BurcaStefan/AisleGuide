@@ -11,6 +11,8 @@ import { jwtDecode } from 'jwt-decode';
 import { User } from '../../models/user.model';
 import { AuthService } from '../../services/auth/auth.service';
 import * as bcrypt from 'bcryptjs';
+import { ImageService } from '../../services/image/image.service';
+import { Image } from '../../models/image.model';
 
 @Component({
   selector: 'app-profile-page',
@@ -42,6 +44,12 @@ export class ProfilePageComponent implements OnInit {
   isUpdatingPassword: boolean = false;
   currentPassword: string = '';
 
+  profileImageUrl: string = '';
+  isLoadingImage: boolean = false;
+  imageError: boolean = false;
+  defaultImageUrl: string =
+    'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1180&q=80';
+
   updateModel: {
     id: string;
     firstName: string;
@@ -69,7 +77,8 @@ export class ProfilePageComponent implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private imageService: ImageService
   ) {}
 
   ngOnInit(): void {
@@ -109,6 +118,8 @@ export class ProfilePageComponent implements OnInit {
         };
 
         this.isLoading = false;
+
+        this.loadProfileImage();
       },
       error: (error) => {
         console.error('Error loading user profile:', error);
@@ -116,6 +127,34 @@ export class ProfilePageComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  private loadProfileImage(): void {
+    this.isLoadingImage = true;
+
+    this.imageService.getImageByEntityId(this.userId).subscribe({
+      next: (image: Image) => {
+        if (image) {
+          this.profileImageUrl = this.buildCloudinaryUrl(
+            image.entityId,
+            image.fileExtension
+          );
+          this.imageError = false;
+        }
+        this.isLoadingImage = false;
+      },
+      error: (error) => {
+        console.log('No profile image found or error loading image:', error);
+        this.profileImageUrl = this.defaultImageUrl;
+        this.imageError = true;
+        this.isLoadingImage = false;
+      },
+    });
+  }
+
+  private buildCloudinaryUrl(userId: string, fileExtension: string): string {
+    const cloudName = 'dctbo9lhm';
+    return `https://res.cloudinary.com/${cloudName}/image/upload/User/${userId}.${fileExtension}`;
   }
 
   startEditing(): void {

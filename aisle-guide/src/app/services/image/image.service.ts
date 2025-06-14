@@ -40,6 +40,4 @@ export class ImageService {
       headers: this.authService.getHeaders(),
     });
   }
-
-  
 }

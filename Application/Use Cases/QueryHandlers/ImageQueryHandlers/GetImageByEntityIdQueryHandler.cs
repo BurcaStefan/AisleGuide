@@ -19,8 +19,11 @@ namespace Application.Use_Cases.QueryHandlers
 
         public async Task<ImageDto> Handle(GetImageByEntityIdQuery request, CancellationToken cancellationToken)
         {
-            var imageResult = await repository.GetByEntityIdAsync(request.Id);
-            return mapper.Map<ImageDto>(imageResult);
+            var image = await repository.GetByEntityIdAsync(request.EntityId);
+            if (image == null)
+                return null;
+            return mapper.Map<ImageDto>(image);
         }
+
     }
 }

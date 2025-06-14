@@ -5,6 +5,6 @@ namespace Application.Use_Cases.Queries
 {
     public class GetImageByEntityIdQuery : IRequest<ImageDto>
     {
-        public Guid Id { get; set; }
+        public Guid EntityId { get; set; }
     }
 }

@@ -11,6 +11,8 @@ import { UserService } from '../../../services/user/user.service';
 import { EmailsenderService } from '../../../services/email-sender/emailsender.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { CloudinaryService } from '../../../services/cloudinary/cloudinary.service';
+import { ImageService } from '../../../services/image/image.service';
 
 @Component({
   selector: 'app-register',
@@ -29,11 +31,18 @@ export class RegisterComponent {
   validationCode: string = '';
   validationCodeValid: boolean = false;
 
+  selectedFile: File | null = null;
+  uploadingImage: boolean = false;
+  imagePreviewUrl: string | ArrayBuffer | null = null;
+  createdUserId: string = '';
+
   constructor(
     private userService: UserService,
     private emailSender: EmailsenderService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private cloudinaryService: CloudinaryService,
+    private imageService: ImageService
   ) {
     this.registerForm = this.fb.group(
       {
@@ -133,24 +142,81 @@ export class RegisterComponent {
       isAdmin: false,
     };
 
+    const selectedImageFile = this.selectedFile;
+    this.selectedFile = null;
+
     this.userService.register(user).subscribe({
       next: (id) => {
-        this.successMessage =
-          'Registration successful! Redirecting to login...';
-        this.loading = false;
+        this.createdUserId = id;
+        this.successMessage = 'Registration successful!';
         sessionStorage.removeItem('registerValidationCodeHash');
 
-        setTimeout(() => {
-          this.router.navigate(['']);
-        }, 1000);
+        if (!selectedImageFile) {
+          this.finishRegistration();
+          return;
+        }
+
+        if (!this.createdUserId) {
+          console.error('User ID is missing, cannot upload profile image');
+          this.errorMessage =
+            'Registration successful, but unable to upload profile image.';
+          this.finishRegistration();
+          return;
+        }
+
+        const imageMetadata = {
+          entityId: this.createdUserId,
+          entityType: 'User',
+          fileExtension: selectedImageFile.name.split('.').pop() || 'jpg',
+        };
+
+        this.imageService.createImage(imageMetadata).subscribe({
+          next: (imageId) => {
+            this.uploadingImage = true;
+            this.successMessage =
+              'Registration successful! Uploading profile image...';
+
+            this.cloudinaryService
+              .uploadImage(selectedImageFile, this.createdUserId, 'User', imageId)
+              .subscribe({
+                next: () => {
+                  this.uploadingImage = false;
+                  this.successMessage =
+                    'Registration and profile image upload successful!';
+                  this.finishRegistration();
+                },
+                error: (error) => {
+                  this.uploadingImage = false;
+                  console.error('Image upload to Cloudinary failed:', error);
+                  this.successMessage =
+                    'Registration successful, but profile image upload failed.';
+                  this.finishRegistration();
+                },
+              });
+          },
+          error: (error) => {
+            console.error('Failed to create image record in database:', error);
+            this.successMessage =
+              'Registration successful, but profile image could not be saved.';
+            this.finishRegistration();
+          },
+        });
       },
       error: (error) => {
         console.error('Registration failed:', error);
         this.errorMessage =
           error.error || 'Registration failed. Please try again.';
         this.loading = false;
+        this.selectedFile = selectedImageFile;
       },
     });
+  }
+
+  private finishRegistration() {
+    this.loading = false;
+    setTimeout(() => {
+      this.router.navigate(['']);
+    }, 1500);
   }
 
   navigateToLogin() {
@@ -164,5 +230,24 @@ export class RegisterComponent {
     return Array.from(new Uint8Array(hashBuffer))
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreviewUrl = reader.result;
+      };
+      reader.readAsDataURL(this.selectedFile);
+    } else {
+      this.imagePreviewUrl = null;
+    }
+  }
+
+  removeSelectedImage() {
+    this.selectedFile = null;
+    this.imagePreviewUrl = null;
   }
 }

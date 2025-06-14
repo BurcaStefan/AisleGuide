@@ -24,6 +24,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<Result<Guid>>> CreateImage(CreateImageCommand command)
         {
             var result = await mediator.Send(command);
@@ -49,18 +50,19 @@ namespace AisleGuide.Controllers
 
         [HttpGet("entity/{entityId:guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult<ImageDto>> GetImageByEntityId(Guid id)
+        public async Task<ActionResult<ImageDto>> GetImageByEntityId(Guid entityId)
         {
-            var query = new GetImageByIdQuery { Id = id };
+            var query = new GetImageByEntityIdQuery { EntityId = entityId };
             var result = await mediator.Send(query);
             if (result == null)
             {
-                return BadRequest("Image not found");
+                return NotFound("Image not found");
             }
             return Ok(result);
         }
 
         [HttpDelete("{id:guid}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Result<bool>>> DeleteImage(Guid id)
         {
             var result = await mediator.Send(new DeleteImageCommand(id));
@@ -72,6 +74,7 @@ namespace AisleGuide.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Result<bool>>> UpdateImage(Guid id, [FromBody] UpdateImageCommand command)
         {
             if (id != command.Id)

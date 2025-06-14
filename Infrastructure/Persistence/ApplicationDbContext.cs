@@ -249,20 +249,6 @@ namespace Infrastructure.Persistence
                     .HasColumnName("file_extension")
                     .HasMaxLength(10)
                     .IsRequired();
-
-                entity.HasOne<Product>()
-                    .WithMany()
-                    .HasForeignKey(e => e.EntityId)
-                    .HasConstraintName("FK_Image_Product")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired(false);
-
-                entity.HasOne<User>()
-                    .WithMany()
-                    .HasForeignKey(e => e.EntityId)
-                    .HasConstraintName("FK_Image_User")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired(false);
             });
 
             modelBuilder.Entity<RefreshToken>(entity => {

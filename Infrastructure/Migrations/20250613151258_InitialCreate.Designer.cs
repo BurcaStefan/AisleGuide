@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250522150710_InitialCreate")]
+    [Migration("20250613151258_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -104,8 +104,6 @@ namespace Infrastructure.Migrations
                         .HasColumnName("file_extension");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EntityId");
 
                     b.ToTable("images", (string)null);
                 });
@@ -347,21 +345,6 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Entities.Image", b =>
-                {
-                    b.HasOne("Domain.Entities.Product", null)
-                        .WithMany()
-                        .HasForeignKey("EntityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_Image_Product");
-
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("EntityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_Image_User");
                 });
 
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
