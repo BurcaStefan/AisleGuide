@@ -9,6 +9,9 @@ import { ClientFooterComponent } from '../../components/layout/client-footer/cli
 import { ClientHeaderComponent } from '../../components/layout/client-header/client-header.component';
 import { CommonModule } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
+import { ImageService } from '../../services/image/image.service';
+import { CloudinaryService } from '../../services/cloudinary/cloudinary.service';
+import { Image } from '../../models/image.model';
 
 @Component({
   selector: 'app-products-page',
@@ -34,6 +37,9 @@ export class ProductsPageComponent implements OnInit {
   isAdmin: boolean = false;
   isLoading: boolean = false;
   favoriteProductIds: Set<string> = new Set();
+  productImages: { [key: string]: string } = {};
+  defaultImageUrl: string =
+    'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80';
 
   categories: string[] = [
     'Alcohol',
@@ -138,7 +144,9 @@ export class ProductsPageComponent implements OnInit {
     private productService: ProductService,
     private favoriteService: FavoriteService,
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private imageService: ImageService,
+    private cloudinaryService: CloudinaryService
   ) {
     this.filterForm = this.fb.group({
       name: [''],
@@ -191,6 +199,7 @@ export class ProductsPageComponent implements OnInit {
     this.productService.getProductsPaginatedByFilter(filters).subscribe({
       next: (response: any) => {
         this.displayedProducts = response.data || response || [];
+        this.loadProductImages();
 
         if (this.displayedProducts.length < this.itemsPerPage) {
           this.hasNextPage = false;
@@ -206,6 +215,29 @@ export class ProductsPageComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  private loadProductImages(): void {
+    this.displayedProducts.forEach((product) => {
+      this.imageService.getImageByEntityId(product.id).subscribe({
+        next: (image: Image) => {
+          if (image) {
+            this.productImages[product.id] =
+              this.cloudinaryService.getOptimizedImageUrl(image);
+          }
+        },
+        error: (error) => {
+        },
+      });
+    });
+  }
+
+  getProductImageUrl(productId: string): string {
+    return this.productImages[productId] || this.defaultImageUrl;
+  }
+
+  handleImageError(productId: string): void {
+    this.productImages[productId] = this.defaultImageUrl;
   }
 
   private checkIfNextPageExists(currentFilters: any): void {

@@ -190,7 +190,6 @@ export class ProductCreatePageComponent {
 
     this.productService.createProduct(productData).subscribe({
       next: (productId) => {
-        console.log('Product created successfully with ID:', productId);
         this.uploadProductImage(productId);
       },
       error: (error) => {
@@ -212,7 +211,6 @@ export class ProductCreatePageComponent {
       .uploadImage(this.selectedFile, productId, 'Product')
       .subscribe({
         next: (image) => {
-          console.log('Image uploaded successfully:', image);
           this.isSubmitting = false;
           this.successMessage = 'Product created successfully with image!';
 

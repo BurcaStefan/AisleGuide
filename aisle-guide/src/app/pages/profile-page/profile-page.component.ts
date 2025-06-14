@@ -148,7 +148,6 @@ export class ProfilePageComponent implements OnInit {
         this.isLoadingImage = false;
       },
       error: (error) => {
-        console.log('No profile image found or error loading image:', error);
         this.profileImageUrl = this.defaultImageUrl;
         this.imageError = true;
         this.isLoadingImage = false;
@@ -414,11 +413,9 @@ export class ProfilePageComponent implements OnInit {
 
       this.imageService.deleteImage(this.userId).subscribe({
         next: () => {
-          console.log('Image metadata deleted from database successfully');
 
           this.cloudinaryService.deleteImage(this.userId, 'User').subscribe({
             next: () => {
-              console.log('Image deleted from Cloudinary successfully');
               this.deleteUserOnly();
             },
             error: (error) => {

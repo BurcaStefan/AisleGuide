@@ -41,7 +41,6 @@ export class CloudinaryService {
     const fileExtension = file.name.split('.').pop() || 'jpg';
     return this.http.post<any>(this.uploadUrl, formData).pipe(
       switchMap((cloudinaryResponse) => {
-        console.log('Cloudinary response:', cloudinaryResponse);
 
         if (existingImageId) {
           return this.imageService.getImageById(existingImageId);
@@ -110,8 +109,6 @@ export class CloudinaryService {
   }
 
   deleteImage(entityId: string, entityType: string): Observable<any> {
-    console.log(`Deleting image: ${entityType}/${entityId}`);
-
     const timestamp = Math.round(new Date().getTime() / 1000);
     const publicId = `${entityType}/${entityId}`;
 
@@ -126,7 +123,6 @@ export class CloudinaryService {
 
     return this.http.post(this.destroyUrl, formData).pipe(
       map((response) => {
-        console.log('Cloudinary delete response:', response);
         return response;
       }),
       catchError((error) => {
