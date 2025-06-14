@@ -6,6 +6,8 @@ import { AdminFooterComponent } from '../../components/layout/admin-footer/admin
 import { AdminHeaderComponent } from '../../components/layout/admin-header/admin-header.component';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CloudinaryService } from '../../services/cloudinary/cloudinary.service';
+import { ImageService } from '../../services/image/image.service';
 
 @Component({
   selector: 'app-product-create-page',
@@ -26,6 +28,7 @@ export class ProductCreatePageComponent {
   successMessage = '';
   isFormSubmitted = false;
   imageError = false;
+  selectedFile: File | null = null;
 
   categories: string[] = [
     'Alcohol',
@@ -44,25 +47,92 @@ export class ProductCreatePageComponent {
   ];
 
   shelvingUnits: string[] = [
-    'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8',
-    'B1', 'B2', 'B3',
-    'C1', 'C2', 'C3', 'C4', 'C5',
-    'D1', 'D2', 'D3', 'D4', 'D5',
-    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8',
-    'G1', 'G2', 'G3', 'G4',
-    'H1', 'H2', 'H3', 'H4',
-    'I1', 'I2', 'I3', 'I4',
-    'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9',
-    'N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8',
-    'O1', 'O2', 'O3', 'O4', 'O5',
-    'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7',
-    'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8',
+    'A1',
+    'A2',
+    'A3',
+    'A4',
+    'A5',
+    'A6',
+    'A7',
+    'A8',
+    'B1',
+    'B2',
+    'B3',
+    'C1',
+    'C2',
+    'C3',
+    'C4',
+    'C5',
+    'D1',
+    'D2',
+    'D3',
+    'D4',
+    'D5',
+    'F1',
+    'F2',
+    'F3',
+    'F4',
+    'F5',
+    'F6',
+    'F7',
+    'F8',
+    'G1',
+    'G2',
+    'G3',
+    'G4',
+    'H1',
+    'H2',
+    'H3',
+    'H4',
+    'I1',
+    'I2',
+    'I3',
+    'I4',
+    'M1',
+    'M2',
+    'M3',
+    'M4',
+    'M5',
+    'M6',
+    'M7',
+    'M8',
+    'M9',
+    'N1',
+    'N2',
+    'N3',
+    'N4',
+    'N5',
+    'N6',
+    'N7',
+    'N8',
+    'O1',
+    'O2',
+    'O3',
+    'O4',
+    'O5',
+    'S1',
+    'S2',
+    'S3',
+    'S4',
+    'S5',
+    'S6',
+    'S7',
+    'V1',
+    'V2',
+    'V3',
+    'V4',
+    'V5',
+    'V6',
+    'V7',
+    'V8',
   ];
 
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
-    private router: Router
+    private router: Router,
+    private cloudinaryService: CloudinaryService,
+    private imageService: ImageService
   ) {
     this.productForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -88,6 +158,8 @@ export class ProductCreatePageComponent {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files[0]) {
       const file = target.files[0];
+      this.selectedFile = file;
+
       const reader = new FileReader();
       reader.onload = () => {
         this.imagePreview = reader.result as string;
@@ -100,7 +172,7 @@ export class ProductCreatePageComponent {
   onSubmit() {
     this.isFormSubmitted = true;
 
-    if (!this.imagePreview) {
+    if (!this.selectedFile) {
       this.imageError = true;
       return;
     }
@@ -118,12 +190,8 @@ export class ProductCreatePageComponent {
 
     this.productService.createProduct(productData).subscribe({
       next: (productId) => {
-        this.isSubmitting = false;
-        this.successMessage = 'Product created successfully!';
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        console.log('Product created successfully with ID:', productId);
+        this.uploadProductImage(productId);
       },
       error: (error) => {
         this.isSubmitting = false;
@@ -131,6 +199,34 @@ export class ProductCreatePageComponent {
         console.error('Error creating product:', error);
       },
     });
+  }
+
+  private uploadProductImage(productId: string) {
+    if (!this.selectedFile) {
+      this.isSubmitting = false;
+      this.errorMessage = 'No image selected';
+      return;
+    }
+
+    this.cloudinaryService
+      .uploadImage(this.selectedFile, productId, 'Product')
+      .subscribe({
+        next: (image) => {
+          console.log('Image uploaded successfully:', image);
+          this.isSubmitting = false;
+          this.successMessage = 'Product created successfully with image!';
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        },
+        error: (error) => {
+          console.error('Error uploading image:', error);
+          this.isSubmitting = false;
+          this.successMessage = 'Product created but image upload failed.';
+          this.errorMessage = 'Failed to upload image. Please try again later.';
+        },
+      });
   }
 
   private markFormGroupTouched(formGroup: FormGroup) {
