@@ -6,6 +6,9 @@ import { Product } from '../../models/product.model';
 import { CommonModule } from '@angular/common';
 import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { ImageService } from '../../services/image/image.service';
+import { CloudinaryService } from '../../services/cloudinary/cloudinary.service';
+import { Image } from '../../models/image.model';
 
 @Component({
   selector: 'app-admin-home-page',
@@ -38,11 +41,18 @@ export class AdminHomePageComponent {
   ];
 
   products: Product[] = [];
+  productImages: { [key: string]: string | null } = {};
+  imagesLoading: { [key: string]: boolean } = {};
   selectedUnit: string = '';
   isLoading: boolean = false;
   error: string | null = null;
 
-  constructor(private productService: ProductService, private router: Router) {}
+  constructor(
+    private productService: ProductService,
+    private router: Router,
+    private imageService: ImageService,
+    private cloudinaryService: CloudinaryService
+  ) {}
 
   currentPage: number = 1;
   pageSize: number = 5;
@@ -56,6 +66,7 @@ export class AdminHomePageComponent {
     this.selectedUnit = unitCode;
     this.error = null;
     this.currentPage = page;
+    this.productImages = {}; // Reset images when loading new products
 
     const queryParams = {
       pageNumber: page,
@@ -69,6 +80,9 @@ export class AdminHomePageComponent {
         this.totalCount = response.totalCount || 0;
         this.checkNextPage(unitCode, page + 1);
         this.isLoading = false;
+
+        // Load images for the products
+        this.loadProductImages();
       },
       error: (err) => {
         console.error('Error loading products:', err);
@@ -77,6 +91,35 @@ export class AdminHomePageComponent {
         this.hasNextPage = false;
       },
     });
+  }
+
+  loadProductImages(): void {
+    this.products.forEach((product) => {
+      this.imagesLoading[product.id] = true;
+
+      this.imageService.getImageByEntityId(product.id).subscribe({
+        next: (image: Image) => {
+          if (image) {
+            const timestamp = new Date().getTime();
+            this.productImages[
+              product.id
+            ] = `https://res.cloudinary.com/${this.cloudinaryService.getCloudName()}/image/upload/Product/${
+              product.id
+            }.${image.fileExtension}?t=${timestamp}`;
+          }
+          this.imagesLoading[product.id] = false;
+        },
+        error: () => {
+          this.productImages[product.id] = null;
+          this.imagesLoading[product.id] = false;
+        },
+      });
+    });
+  }
+
+  handleImageError(productId: string): void {
+    // Set to null instead of a default image so spinner shows
+    this.productImages[productId] = null;
   }
 
   checkNextPage(unitCode: string, nextPage: number): void {

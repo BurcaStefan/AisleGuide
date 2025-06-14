@@ -103,12 +103,45 @@
 .card-left {
   flex: 0 0 110px;
   padding: 10px;
+  height: 90px;
+  width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   .product-image {
     width: 90px;
     height: 90px;
     object-fit: cover;
     border-radius: 6px;
+  }
+}
+
+.image-loading-spinner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+
+  .spinner {
+    border: 3px solid rgba(66, 133, 244, 0.2);
+    border-top: 3px solid #4285f4;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
