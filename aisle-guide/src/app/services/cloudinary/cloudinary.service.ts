@@ -41,7 +41,6 @@ export class CloudinaryService {
     const fileExtension = file.name.split('.').pop() || 'jpg';
     return this.http.post<any>(this.uploadUrl, formData).pipe(
       switchMap((cloudinaryResponse) => {
-
         if (existingImageId) {
           return this.imageService.getImageById(existingImageId);
         }
@@ -75,34 +74,63 @@ export class CloudinaryService {
       return throwError(() => new Error('No file selected'));
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', this.uploadPreset);
-
-    const publicId = `${entityType.toLowerCase()}/${entityId}`;
-    formData.append('public_id', publicId);
-    formData.append('overwrite', 'true');
-
-    const fileExtension = file.name.split('.').pop() || 'jpg';
-
-    return this.http.post<any>(this.uploadUrl, formData).pipe(
-      switchMap((response) => {
-        const imageData: Image = {
-          id: imageId,
-          entityId: entityId,
-          entityType: entityType,
-          fileExtension: fileExtension,
-        };
-
-        return this.imageService.updateImage(imageId, imageData);
-      }),
+    return this.deleteImage(entityId, entityType).pipe(
       switchMap(() => {
-        return this.imageService.getImageById(imageId);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', this.uploadPreset);
+
+        const publicId = `${entityType.toLowerCase()}/${entityId}`;
+        formData.append('public_id', publicId);
+
+        const fileExtension = file.name.split('.').pop() || 'jpg';
+
+        return this.http.post<any>(this.uploadUrl, formData).pipe(
+          switchMap((response) => {
+            const imageData: Image = {
+              id: imageId,
+              entityId: entityId,
+              entityType: entityType,
+              fileExtension: fileExtension,
+            };
+
+            return this.imageService.updateImage(imageId, imageData);
+          }),
+          switchMap(() => {
+            return this.imageService.getImageById(imageId);
+          }),
+          catchError((error) => {
+            console.error('Error updating image:', error);
+            return throwError(
+              () => new Error('Failed to update image: ' + error.message)
+            );
+          })
+        );
       }),
       catchError((error) => {
-        console.error('Error updating image:', error);
-        return throwError(
-          () => new Error('Failed to update image: ' + error.message)
+        console.error('Error in delete-then-upload process:', error);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', this.uploadPreset);
+        const publicId = `${entityType.toLowerCase()}/${entityId}`;
+        formData.append('public_id', publicId);
+
+        const fileExtension = file.name.split('.').pop() || 'jpg';
+
+        return this.http.post<any>(this.uploadUrl, formData).pipe(
+          switchMap((response) => {
+            const imageData: Image = {
+              id: imageId,
+              entityId: entityId,
+              entityType: entityType,
+              fileExtension: fileExtension,
+            };
+
+            return this.imageService.updateImage(imageId, imageData);
+          }),
+          switchMap(() => {
+            return this.imageService.getImageById(imageId);
+          })
         );
       })
     );
@@ -145,6 +173,10 @@ export class CloudinaryService {
 
   getOptimizedImageUrl(image: Image): string {
     return this.getImageUrl(image, 'f_auto,q_auto');
+  }
+
+  getCloudName(): string {
+    return this.cloudName;
   }
 
   private generateSHA1(message: string): string {

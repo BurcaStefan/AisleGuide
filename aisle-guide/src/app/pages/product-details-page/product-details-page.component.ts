@@ -44,6 +44,9 @@ export class ProductDetailsPageComponent implements OnInit {
   hasNextPage = false;
 
   userMap: { [userId: string]: { firstName: string; lastName: string } } = {};
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+  isUploadingImage = false;
 
   showReviewForm = false;
   newReviewContent = '';
@@ -82,39 +85,37 @@ export class ProductDetailsPageComponent implements OnInit {
     });
   }
 
-  loadProductImage(): void {
-    this.isLoadingImage = true;
+loadProductImage(forceRefresh: boolean = false): void {
+  this.isLoadingImage = true;
+  this.productImageUrl = null;
 
-    this.imageService.getImageByEntityId(this.productId).subscribe({
-      next: (image: Image) => {
-        if (image) {
-          this.productImageUrl = this.buildCloudinaryUrl(
-            image.entityId,
-            image.fileExtension
-          );
-          this.imageError = false;
-        } else {
-          this.productImageUrl = this.defaultImageUrl;
-        }
-        this.isLoadingImage = false;
-      },
-      error: (error) => {
-        console.log('No product image found or error loading image:', error);
-        this.productImageUrl = this.defaultImageUrl;
-        this.imageError = true;
-        this.isLoadingImage = false;
-      },
-    });
-  }
+  this.imageService.getImageByEntityId(this.productId).subscribe({
+    next: (image: Image) => {
+      if (image) {
+        const timestamp = new Date().getTime();
+        this.productImageUrl = `https://res.cloudinary.com/${this.cloudinaryService.getCloudName()}/image/upload/v${timestamp}/Product/${this.productId}.${image.fileExtension}`;
+        this.imageError = false;
+      }
+      this.isLoadingImage = false;
+    },
+    error: () => {
+      this.productImageUrl = this.defaultImageUrl;
+      this.imageError = true;
+      this.isLoadingImage = false;
+    },
+  });
+}
 
-  private buildCloudinaryUrl(entityId: string, fileExtension: string): string {
-    const image: Image = {
-      id: entityId,
-      entityId: entityId,
-      entityType: 'Product',
-      fileExtension: fileExtension,
-    };
-    return this.cloudinaryService.getImageUrl(image);
+  onImageSelected(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+      this.selectedFile = target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(this.selectedFile);
+    }
   }
 
   handleImageError(): void {
@@ -277,13 +278,21 @@ export class ProductDetailsPageComponent implements OnInit {
     if (!this.editedProduct) return;
 
     this.isLoading = true;
+
     this.productService
       .updateProduct(this.productId, this.editedProduct)
       .subscribe({
         next: () => {
-          this.isLoading = false;
-          this.isEditing = false;
-          this.loadProductDetails();
+          console.log('Product details updated successfully');
+
+          if (this.selectedFile) {
+            this.updateProductImage();
+          } else {
+            this.isLoading = false;
+            this.isEditing = false;
+            this.loadProductDetails();
+            this.imagePreview = null;
+          }
         },
         error: (err) => {
           console.error('Error updating product:', err);
@@ -291,6 +300,158 @@ export class ProductDetailsPageComponent implements OnInit {
           this.isLoading = false;
         },
       });
+  }
+
+  private updateProductImage(): void {
+    this.isUploadingImage = true;
+
+    this.imageService.getImageByEntityId(this.productId).subscribe({
+      next: (existingImage: Image) => {
+        if (existingImage) {
+          this.cloudinaryService
+            .updateImage(
+              this.selectedFile!,
+              existingImage.id,
+              this.productId,
+              'Product'
+            )
+            .subscribe({
+              next: (updatedImage) => {
+                console.log(
+                  'Image updated successfully with ID:',
+                  updatedImage.id
+                );
+                this.completeImageUpdate(true);
+              },
+              error: (error) => {
+                console.error('Error updating image:', error);
+                this.isUploadingImage = false;
+                this.isLoading = false;
+                this.error = 'Failed to update image';
+              },
+            });
+        } else {
+          this.cloudinaryService
+            .uploadImage(this.selectedFile!, this.productId, 'Product')
+            .subscribe({
+              next: (newImage) => {
+                console.log('New image created with ID:', newImage.id);
+                this.completeImageUpdate(true);
+              },
+              error: (error) => {
+                console.error('Error uploading new image:', error);
+                this.isUploadingImage = false;
+                this.isLoading = false;
+                this.error = 'Failed to upload new image';
+              },
+            });
+        }
+      },
+      error: (error) => {
+        console.error('Error checking for existing image:', error);
+        this.isUploadingImage = false;
+        this.isLoading = false;
+        this.error = 'Failed to check for existing image';
+      },
+    });
+  }
+
+  private uploadAndUpdateExistingImage(existingImage: Image): void {
+    this.cloudinaryService
+      .uploadImage(this.selectedFile!, this.productId, 'Product')
+      .subscribe({
+        next: () => {
+          const fileExtension =
+            this.selectedFile!.name.split('.').pop() || 'jpg';
+          const updatedImage: Image = {
+            ...existingImage,
+            fileExtension: fileExtension,
+          };
+
+          this.imageService
+            .updateImage(existingImage.id, updatedImage)
+            .subscribe({
+              next: () => {
+                this.completeImageUpdate();
+              },
+              error: (error) => {
+                this.isUploadingImage = false;
+                this.isLoading = false;
+                this.error = 'Failed to update image metadata';
+              },
+            });
+        },
+        error: () => {
+          this.isUploadingImage = false;
+          this.isLoading = false;
+          this.error = 'Failed to upload new image';
+        },
+      });
+  }
+
+  private uploadNewProductImage(): void {
+    this.cloudinaryService
+      .uploadImage(this.selectedFile!, this.productId, 'Product')
+      .subscribe({
+        next: () => {
+          const fileExtension =
+            this.selectedFile!.name.split('.').pop() || 'jpg';
+          const newImage = {
+            entityId: this.productId,
+            entityType: 'Product',
+            fileExtension: fileExtension,
+          };
+
+          this.imageService.createImage(newImage).subscribe({
+            next: () => {
+              this.completeImageUpdate();
+            },
+            error: () => {
+              this.isUploadingImage = false;
+              this.isLoading = false;
+              this.error = 'Failed to create image metadata';
+            },
+          });
+        },
+        error: () => {
+          this.isUploadingImage = false;
+          this.isLoading = false;
+          this.error = 'Failed to upload new image';
+        },
+      });
+  }
+
+  private completeImageUpdate(forceRefresh: boolean = false): void {
+    this.isUploadingImage = false;
+    this.isLoading = false;
+    this.isEditing = false;
+    this.selectedFile = null;
+    this.imagePreview = null;
+    this.productImageUrl = null;
+
+    setTimeout(() => {
+      if (forceRefresh) {
+        this.imageService.getImageByEntityId(this.productId).subscribe({
+          next: (image) => {
+            if (image) {
+              const timestamp = new Date().getTime();
+              this.productImageUrl = `https://res.cloudinary.com/${this.cloudinaryService.getCloudName()}/image/upload/v${timestamp}/Product/${
+                this.productId
+              }.${image.fileExtension}`;
+            }
+            this.loadProductDetails();
+          },
+        });
+      } else {
+        this.loadProductImage();
+        this.loadProductDetails();
+      }
+    }, 2000);
+  }
+
+  cancelImageSelection(): void {
+    this.selectedFile = null;
+    this.imagePreview = null;
   }
 
   deleteProduct(): void {

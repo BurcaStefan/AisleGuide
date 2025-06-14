@@ -101,8 +101,14 @@
             @for (product of displayedProducts; track product.id) {
             <div class="product-card">
                 <div class="product-image">
-                    <img [src]="getProductImageUrl(product.id)" alt="{{ product.name }}"
+                    @if (productImages[product.id]) {
+                    <img [src]="productImages[product.id]" alt="{{ product.name }}"
                         (error)="handleImageError(product.id)">
+                    } @else {
+                    <div class="image-loading-spinner">
+                        <div class="spinner"></div>
+                    </div>
+                    }
                     @if (!isAdmin) {
                     <button class="favorite-btn" (click)="toggleFavorite(product.id)"
                         [class.active]="isFavorite(product.id)">
@@ -116,18 +122,6 @@
                         <p class="product-price">€ {{ product.price.toFixed(2) }}</p>
                         <p class="product-category">Category: {{ product.category }}</p>
                         <p class="product-shelf">Shelf: {{ product.shelvingUnit || 'Not assigned' }}</p>
-                    </div>
-                    <div class="product-rating">
-                        <span class="star-rating">
-                            @for (i of [1, 2, 3, 4, 5]; track i) {
-                            <i class="fa" [ngClass]="{
-                                'fa-star': i <= Math.floor(product.averageRating),
-                                'fa-star-half-o': (i > Math.floor(product.averageRating) && i <= product.averageRating + 0.5),
-                                'fa-star-o': i > product.averageRating + 0.5
-                            }"></i>
-                            }
-                        </span>
-                        <span class="rating-value">{{ product.averageRating }}</span>
                     </div>
                     <div class="product-actions">
                         <button class="btn-view-details" (click)="viewProductDetails(product.id)">View Details</button>

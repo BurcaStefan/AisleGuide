@@ -19,17 +19,47 @@
         } @else if (product) {
         <div class="product-details">
             <div class="product-image-container">
-                @if (isLoadingImage) {
+                @if (isLoadingImage || isUploadingImage) {
                 <div class="loading-spinner">
                     <div class="spinner"></div>
-                    <p>Loading image...</p>
+                    <p>{{ isUploadingImage ? 'Uploading image...' : 'Loading image...' }}</p>
+                </div>
+                } @else if (isEditing && imagePreview) {
+                <img [src]="imagePreview" alt="Preview" class="product-image">
+                <div class="image-actions">
+                    <button type="button" class="cancel-image-btn" (click)="cancelImageSelection()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                } @else if (isEditing) {
+                <div class="image-upload-container">
+                    @if (productImageUrl) {
+                    <img [src]="productImageUrl" alt="{{ product.name }}" class="product-image"
+                        (error)="handleImageError()">
+                    } @else {
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                    </div>
+                    }
+                    <div class="image-upload-overlay">
+                        <label for="product-image" class="image-upload-label">
+                            <i class="fas fa-camera"></i> Change Image
+                        </label>
+                        <input type="file" id="product-image" accept="image/*" (change)="onImageSelected($event)"
+                            style="display: none;">
+                    </div>
                 </div>
                 } @else {
+                @if (productImageUrl) {
                 <img [src]="productImageUrl" alt="{{ product.name }}" class="product-image"
                     (error)="handleImageError()">
+                } @else {
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+                }
                 }
             </div>
-
             <div class="product-info-container">
                 <div class="product-info">
                     <h3 class="product-name">

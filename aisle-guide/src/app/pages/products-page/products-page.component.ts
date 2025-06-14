@@ -222,12 +222,13 @@ export class ProductsPageComponent implements OnInit {
       this.imageService.getImageByEntityId(product.id).subscribe({
         next: (image: Image) => {
           if (image) {
+            const timestamp = new Date().getTime();
             this.productImages[product.id] =
-              this.cloudinaryService.getOptimizedImageUrl(image);
+              this.cloudinaryService.getOptimizedImageUrl(image) +
+              `?t=${timestamp}`;
           }
         },
-        error: (error) => {
-        },
+        error: (error) => {},
       });
     });
   }
