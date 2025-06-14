@@ -31,9 +31,9 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<Result<bool>> DeleteAsync(Guid id)
+        public async Task<Result<bool>> DeleteAsync(Guid entiryId)
         {
-            var image = await context.Images.FindAsync(id);
+            var image = await context.Images.FirstOrDefaultAsync(i=>i.EntityId==entiryId);
             if (image == null)
             {
                 return Result<bool>.Failure("Image not found");

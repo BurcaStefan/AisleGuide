@@ -4,14 +4,20 @@ import { Observable, from, throwError } from 'rxjs';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { Image } from '../../models/image.model';
 import { ImageService } from '../image/image.service';
+import { environment } from '../../../environment';
+import * as CryptoJS from 'crypto-js';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CloudinaryService {
-  private cloudName = 'dctbo9lhm';
-  private uploadPreset = 'aisle_guide';
+  private cloudName = environment.cloudinary.cloudName;
+  private apiKey = environment.cloudinary.apiKey;
+  private apiSecret = environment.cloudinary.apiSecret;
+  private uploadPreset = environment.cloudinary.uploadPreset;
+
   private uploadUrl = `https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`;
+  private destroyUrl = `https://api.cloudinary.com/v1_1/${this.cloudName}/image/destroy`;
 
   constructor(private http: HttpClient, private imageService: ImageService) {}
 
@@ -103,14 +109,31 @@ export class CloudinaryService {
     );
   }
 
-  deleteImage(
-    imageId: string,
-    entityId: string,
-    entityType: string
-  ): Observable<boolean> {
-    const deleteUrl = `https://api.cloudinary.com/v1_1/${this.cloudName}/image/destroy`;
-    const publicId = `${entityType.toLowerCase()}/${entityId}`;
-    return this.imageService.deleteImage(imageId);
+  deleteImage(entityId: string, entityType: string): Observable<any> {
+    console.log(`Deleting image: ${entityType}/${entityId}`);
+
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const publicId = `${entityType}/${entityId}`;
+
+    const formData = new FormData();
+    formData.append('public_id', publicId);
+    formData.append('api_key', this.apiKey);
+    formData.append('timestamp', timestamp.toString());
+    const signatureString = `public_id=${publicId}&timestamp=${timestamp}${this.apiSecret}`;
+    const signature = this.generateSHA1(signatureString);
+
+    formData.append('signature', signature);
+
+    return this.http.post(this.destroyUrl, formData).pipe(
+      map((response) => {
+        console.log('Cloudinary delete response:', response);
+        return response;
+      }),
+      catchError((error) => {
+        console.error('Error deleting from Cloudinary:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   getImageUrl(image: Image, transformation: string = ''): string {
@@ -126,5 +149,9 @@ export class CloudinaryService {
 
   getOptimizedImageUrl(image: Image): string {
     return this.getImageUrl(image, 'f_auto,q_auto');
+  }
+
+  private generateSHA1(message: string): string {
+    return CryptoJS.SHA1(message).toString();
   }
 }

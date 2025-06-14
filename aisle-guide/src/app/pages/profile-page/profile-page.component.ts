@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import * as bcrypt from 'bcryptjs';
 import { ImageService } from '../../services/image/image.service';
 import { Image } from '../../models/image.model';
+import { CloudinaryService } from '../../services/cloudinary/cloudinary.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -49,6 +50,7 @@ export class ProfilePageComponent implements OnInit {
   imageError: boolean = false;
   defaultImageUrl: string =
     'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1180&q=80';
+  private userImage: Image | null = null;
 
   updateModel: {
     id: string;
@@ -78,7 +80,8 @@ export class ProfilePageComponent implements OnInit {
     private userService: UserService,
     private authService: AuthService,
     private router: Router,
-    private imageService: ImageService
+    private imageService: ImageService,
+    private cloudinaryService: CloudinaryService
   ) {}
 
   ngOnInit(): void {
@@ -135,6 +138,7 @@ export class ProfilePageComponent implements OnInit {
     this.imageService.getImageByEntityId(this.userId).subscribe({
       next: (image: Image) => {
         if (image) {
+          this.userImage = image;
           this.profileImageUrl = this.buildCloudinaryUrl(
             image.entityId,
             image.fileExtension
@@ -403,17 +407,46 @@ export class ProfilePageComponent implements OnInit {
     ) {
       this.isDeleting = true;
 
-      this.userService.deleteUser(this.userId).subscribe({
+      if (!this.userImage) {
+        this.deleteUserOnly();
+        return;
+      }
+
+      this.imageService.deleteImage(this.userId).subscribe({
         next: () => {
-          this.authService.logout();
-          this.router.navigate(['/login']);
+          console.log('Image metadata deleted from database successfully');
+
+          this.cloudinaryService.deleteImage(this.userId, 'User').subscribe({
+            next: () => {
+              console.log('Image deleted from Cloudinary successfully');
+              this.deleteUserOnly();
+            },
+            error: (error) => {
+              console.error('Error deleting image from Cloudinary:', error);
+              this.deleteUserOnly();
+            },
+          });
         },
         error: (error) => {
-          console.error('Error deleting account:', error);
-          this.errorMessage = 'Failed to delete account';
-          this.isDeleting = false;
+          console.error('Error deleting image metadata from database:', error);
+          this.deleteUserOnly();
         },
       });
     }
+  }
+
+  private deleteUserOnly(): void {
+    this.userService.deleteUser(this.userId).subscribe({
+      next: () => {
+        this.authService.logout();
+        this.isDeleting = false;
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Error deleting account:', error);
+        this.errorMessage = 'Failed to delete account';
+        this.isDeleting = false;
+      },
+    });
   }
 }
