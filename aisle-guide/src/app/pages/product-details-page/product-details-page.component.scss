@@ -37,6 +37,19 @@
 .product-image-container {
   width: 300px;
   flex-shrink: 0;
+  height: auto;
+  position: relative;
+
+  .loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    width: 100%;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
 }
 
 .product-image {

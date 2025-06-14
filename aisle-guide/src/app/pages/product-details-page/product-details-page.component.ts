@@ -8,6 +8,9 @@ import { jwtDecode } from 'jwt-decode';
 import { ReviewService } from '../../services/product-review/review.service';
 import { UserService } from '../../services/user/user.service';
 import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
+import { ImageService } from '../../services/image/image.service';
+import { CloudinaryService } from '../../services/cloudinary/cloudinary.service';
+import { Image } from '../../models/image.model';
 
 @Component({
   selector: 'app-product-details-page',
@@ -24,6 +27,12 @@ export class ProductDetailsPageComponent implements OnInit {
   error: string | null = null;
   isAdmin = false;
   isEditing = false;
+
+  productImageUrl: string | null = null;
+  isLoadingImage = false;
+  imageError = false;
+  defaultImageUrl =
+    'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80';
 
   reviews: any[] = [];
   totalReviews = 0;
@@ -50,7 +59,9 @@ export class ProductDetailsPageComponent implements OnInit {
     private router: Router,
     private productService: ProductService,
     private reviewService: ReviewService,
-    private userService: UserService
+    private userService: UserService,
+    private imageService: ImageService,
+    private cloudinaryService: CloudinaryService
   ) {}
 
   ngOnInit(): void {
@@ -61,6 +72,7 @@ export class ProductDetailsPageComponent implements OnInit {
       if (id) {
         this.productId = id;
         this.loadProductDetails();
+        this.loadProductImage();
         this.loadReviews();
         this.getCurrentUserId();
       } else {
@@ -68,6 +80,46 @@ export class ProductDetailsPageComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  loadProductImage(): void {
+    this.isLoadingImage = true;
+
+    this.imageService.getImageByEntityId(this.productId).subscribe({
+      next: (image: Image) => {
+        if (image) {
+          this.productImageUrl = this.buildCloudinaryUrl(
+            image.entityId,
+            image.fileExtension
+          );
+          this.imageError = false;
+        } else {
+          this.productImageUrl = this.defaultImageUrl;
+        }
+        this.isLoadingImage = false;
+      },
+      error: (error) => {
+        console.log('No product image found or error loading image:', error);
+        this.productImageUrl = this.defaultImageUrl;
+        this.imageError = true;
+        this.isLoadingImage = false;
+      },
+    });
+  }
+
+  private buildCloudinaryUrl(entityId: string, fileExtension: string): string {
+    const image: Image = {
+      id: entityId,
+      entityId: entityId,
+      entityType: 'Product',
+      fileExtension: fileExtension,
+    };
+    return this.cloudinaryService.getImageUrl(image);
+  }
+
+  handleImageError(): void {
+    this.productImageUrl = this.defaultImageUrl;
+    this.imageError = true;
   }
 
   checkAdminStatus(): void {
@@ -243,16 +295,75 @@ export class ProductDetailsPageComponent implements OnInit {
 
   deleteProduct(): void {
     if (confirm('Are you sure you want to delete this product?')) {
-      this.productService.deleteProduct(this.productId).subscribe({
-        next: () => {
-          this.goBack();
+      this.isLoading = true;
+      this.error = null;
+
+      this.imageService.getImageByEntityId(this.productId).subscribe({
+        next: (image: Image) => {
+          if (image) {
+            this.cloudinaryService
+              .deleteImage(this.productId, 'Product')
+              .subscribe({
+                next: () => {
+                  this.imageService.deleteImage(image.entityId).subscribe({
+                    next: () => {
+                      console.log(
+                        'Image metadata deleted from database successfully'
+                      );
+
+                      this.deleteProductOnly();
+                    },
+                    error: (error) => {
+                      console.error(
+                        'Error deleting image from database:',
+                        error
+                      );
+                      this.deleteProductOnly();
+                    },
+                  });
+                },
+                error: (error) => {
+                  console.error('Error deleting image from Cloudinary:', error);
+
+                  this.imageService.deleteImage(image.entityId).subscribe({
+                    next: () => {
+                      console.log(
+                        'Image metadata deleted from database successfully'
+                      );
+                      this.deleteProductOnly();
+                    },
+                    error: (err) => {
+                      console.error('Error deleting image from database:', err);
+                      this.deleteProductOnly();
+                    },
+                  });
+                },
+              });
+          } else {
+            this.deleteProductOnly();
+          }
         },
-        error: (err) => {
-          console.error('Error deleting product:', err);
-          this.error = 'Error deleting product';
+        error: (error) => {
+          console.error('Error checking for product image:', error);
+          this.deleteProductOnly();
         },
       });
     }
+  }
+
+  private deleteProductOnly(): void {
+    this.productService.deleteProduct(this.productId).subscribe({
+      next: () => {
+        console.log('Product deleted successfully');
+        this.isLoading = false;
+        this.goBack();
+      },
+      error: (error) => {
+        console.error('Error deleting product:', error);
+        this.error = 'Failed to delete product';
+        this.isLoading = false;
+      },
+    });
   }
 
   setRating(rating: number): void {
