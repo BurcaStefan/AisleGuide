@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { ProductService } from '../../../services/product/product.service';
+import { ImageService } from '../../../services/image/image.service';
+import { CloudinaryService } from '../../../services/cloudinary/cloudinary.service';
+import { Image } from '../../../models/image.model';
 
 @Component({
   selector: 'app-product-dialog',
@@ -21,6 +24,9 @@ export class ProductDialogComponent {
   showFilterForm: boolean = false;
   isLoading: boolean = false;
   Math = Math;
+
+  productImages: { [key: string]: string | null } = {};
+  imagesLoading: { [key: string]: boolean } = {};
 
   categories: string[] = [
     'Alcohol',
@@ -122,6 +128,8 @@ export class ProductDialogComponent {
   constructor(
     private productService: ProductService,
     private router: Router,
+    private imageService: ImageService,
+    private cloudinaryService: CloudinaryService,
     private fb: FormBuilder,
     public dialogRef: DialogRef<any>,
     @Inject(DIALOG_DATA) public data: any
@@ -143,6 +151,7 @@ export class ProductDialogComponent {
     if (this.isLoading) return;
 
     this.isLoading = true;
+    this.productImages = {};
 
     const filters = {
       pageNumber: this.currentPage,
@@ -159,6 +168,8 @@ export class ProductDialogComponent {
         const allProducts = response.data || response || [];
         this.displayedProducts = allProducts;
 
+        this.loadProductImages();
+
         if (allProducts.length === this.itemsPerPage) {
           this.checkNextPageAvailability();
         } else {
@@ -173,6 +184,34 @@ export class ProductDialogComponent {
         this.isLoading = false;
       },
     });
+  }
+
+  loadProductImages(): void {
+    this.displayedProducts.forEach((product) => {
+      this.imagesLoading[product.id] = true;
+
+      this.imageService.getImageByEntityId(product.id).subscribe({
+        next: (image: Image) => {
+          if (image) {
+            const timestamp = new Date().getTime();
+            this.productImages[
+              product.id
+            ] = `https://res.cloudinary.com/${this.cloudinaryService.getCloudName()}/image/upload/Product/${
+              product.id
+            }.${image.fileExtension}?t=${timestamp}`;
+          }
+          this.imagesLoading[product.id] = false;
+        },
+        error: () => {
+          this.productImages[product.id] = null;
+          this.imagesLoading[product.id] = false;
+        },
+      });
+    });
+  }
+
+  handleImageError(productId: string): void {
+    this.productImages[productId] = null;
   }
 
   private checkNextPageAvailability(): void {
