@@ -1,10 +1,8 @@
-﻿using CloudinaryDotNet;
-using Domain.Common;
+﻿using Domain.Common;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Repositories
 {
