@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { LoginComponent } from "../../components/user/login/login.component";
+import { Component } from '@angular/core';
+import { LoginComponent } from '../../components/user/login/login.component';
 
 @Component({
   selector: 'app-login-page',
@@ -7,6 +7,4 @@ import { LoginComponent } from "../../components/user/login/login.component";
   styleUrls: ['./login-page.component.scss'],
   imports: [LoginComponent],
 })
-export class LoginPageComponent implements OnInit {
-  ngOnInit(): void {}
-}
+export class LoginPageComponent {}

@@ -36,6 +36,48 @@ export class RegisterComponent {
   imagePreviewUrl: string | ArrayBuffer | null = null;
   createdUserId: string = '';
 
+  get isInvalidFirstName(): boolean {
+    return Boolean(
+      this.registerForm.get('firstName')?.invalid &&
+        this.registerForm.get('firstName')?.touched
+    );
+  }
+
+  get isInvalidLastName(): boolean {
+    return Boolean(
+      this.registerForm.get('lastName')?.invalid &&
+        this.registerForm.get('lastName')?.touched
+    );
+  }
+
+  get isInvalidEmail(): boolean {
+    return Boolean(
+      this.registerForm.get('email')?.invalid &&
+        this.registerForm.get('email')?.touched
+    );
+  }
+
+  get isInvalidPassword(): boolean {
+    return Boolean(
+      this.registerForm.get('password')?.invalid &&
+        this.registerForm.get('password')?.touched
+    );
+  }
+
+  get isInvalidConfirmPassword(): boolean {
+    return Boolean(
+      this.registerForm.get('confirmPassword')?.invalid &&
+        this.registerForm.get('confirmPassword')?.touched
+    );
+  }
+
+  get isValidationCodeInvalid(): boolean {
+    return Boolean(
+      this.registerForm.get('validationCode')?.invalid &&
+        this.registerForm.get('validationCode')?.touched
+    );
+  }
+
   constructor(
     private userService: UserService,
     private emailSender: EmailsenderService,
@@ -177,7 +219,12 @@ export class RegisterComponent {
               'Registration successful! Uploading profile image...';
 
             this.cloudinaryService
-              .uploadImage(selectedImageFile, this.createdUserId, 'User', imageId)
+              .uploadImage(
+                selectedImageFile,
+                this.createdUserId,
+                'User',
+                imageId
+              )
               .subscribe({
                 next: () => {
                   this.uploadingImage = false;

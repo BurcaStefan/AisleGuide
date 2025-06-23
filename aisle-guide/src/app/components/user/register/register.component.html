@@ -1,51 +1,40 @@
 <form [formGroup]="registerForm" (ngSubmit)="register()">
     <div class="form-group">
         <label for="firstName">First Name</label>
-        <input id="firstName" type="text" formControlName="firstName" class="form-control"
-            [class.is-invalid]="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched" />
-
-        @if(registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
-        <div class="invalid-feedback">
-            @if(registerForm.get('firstName')?.errors?.['required']) {
-            <div class="error-message">First name is required.</div>
-            }
-        </div>
+        <input class="form-control" [class.is-invalid]="isInvalidFirstName" id="firstName" type="text"
+            formControlName="firstName" />
+        @if(isInvalidFirstName && registerForm.get('firstName')?.errors?.['required']) {
+        <div class="error-message">First name is required.</div>
         }
     </div>
 
     <div class="form-group">
         <label for="lastName">Last Name</label>
-        <input id="lastName" type="text" formControlName="lastName" class="form-control"
-            [class.is-invalid]="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched" />
-
-        @if(registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
-        <div class="invalid-feedback">
-            @if(registerForm.get('lastName')?.errors?.['required']) {
-            <div class="error-message">Last name is required.</div>
-            }
-        </div>
+        <input class="form-control" [class.is-invalid]="isInvalidLastName" id="lastName" type="text"
+            formControlName="lastName" />
+        @if(isInvalidLastName && registerForm.get('lastName')?.errors?.['required']) {
+        <div class="error-message">Last name is required.</div>
         }
     </div>
 
     <div class="form-group">
         <label for="email">Email</label>
         <div class="email-input-group">
-            <input id="email" type="email" formControlName="email" class="form-control" autocomplete="off"
-                [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" />
-
-            <button type="button" class="btn-send-code" (click)="sendValidationCode()"
-                [disabled]="!registerForm.get('email')?.valid || loading">
+            <input class="form-control" [class.is-invalid]="isInvalidEmail" id="email" type="email"
+                formControlName="email" autocomplete="off" />
+            <button class="btn-send-code" type="button" [disabled]="!registerForm.get('email')?.valid || loading"
+                (click)="sendValidationCode()">
                 Send Code
             </button>
         </div>
 
-        @if(registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-        <div class="invalid-feedback">
+        @if(isInvalidEmail) {
+        <div class="error-message">
             @if(registerForm.get('email')?.errors?.['required']) {
-            <div class="error-message">Email is required.</div>
+            <span>Email is required.</span>
             }
             @if(registerForm.get('email')?.errors?.['email']) {
-            <div class="error-message">Please enter a valid email address.</div>
+            <span>Please enter a valid email address.</span>
             }
         </div>
         }
@@ -53,16 +42,15 @@
 
     <div class="form-group">
         <label for="password">Password</label>
-        <input id="password" type="password" formControlName="password" class="form-control"
-            [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" />
-
-        @if(registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-        <div class="invalid-feedback">
+        <input class="form-control" [class.is-invalid]="isInvalidPassword" id="password" type="password"
+            formControlName="password" />
+        @if(isInvalidPassword) {
+        <div class="error-message">
             @if(registerForm.get('password')?.errors?.['required']) {
-            <div class="error-message">Password is required.</div>
+            <span>Password is required.</span>
             }
             @if(registerForm.get('password')?.errors?.['minlength']) {
-            <div class="error-message">Password must be at least 6 characters long.</div>
+            <span>Password must be at least 6 characters long.</span>
             }
         </div>
         }
@@ -70,31 +58,26 @@
 
     <div class="form-group">
         <label for="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" type="password" formControlName="confirmPassword" class="form-control"
-            [class.is-invalid]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" />
-
-        @if(registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
-        <div class="invalid-feedback">
+        <input class="form-control" [class.is-invalid]="isInvalidConfirmPassword" id="confirmPassword" type="password"
+            formControlName="confirmPassword" />
+        @if(isInvalidConfirmPassword) {
+        <div class="error-message">
             @if(registerForm.get('confirmPassword')?.errors?.['required']) {
-            <div class="error-message">Please confirm your password.</div>
+            <span>Please confirm your password.</span>
             }
             @if(registerForm.get('confirmPassword')?.errors?.['mismatch']) {
-            <div class="error-message">Passwords do not match.</div>
+            <span>Passwords do not match.</span>
             }
         </div>
         }
     </div>
 
-    <div class="form-group validation-code-row">
+    <div class="form-group">
         <label for="validationCode">Validation Code</label>
-        <input id="validationCode" type="text" formControlName="validationCode" class="form-control full-width"
-            autocomplete="off"
-            [class.is-invalid]="registerForm.get('validationCode')?.invalid && registerForm.get('validationCode')?.touched" />
-
-        @if(registerForm.get('validationCode')?.invalid && registerForm.get('validationCode')?.touched) {
-        <div class="invalid-feedback">
-            <div class="error-message">Validation code is required and must match the code sent to your email.</div>
-        </div>
+        <input class="form-control full-width" [class.is-invalid]="isValidationCodeInvalid" id="validationCode"
+            type="text" formControlName="validationCode" autocomplete="off" />
+        @if(isValidationCodeInvalid) {
+        <div class="error-message">Validation code is required and must match the code sent to your email.</div>
         }
         @if(validationCodeSent && validationCodeValid && registerForm.get('validationCode')?.touched) {
         <div class="success-message">Code validated!</div>
@@ -107,15 +90,15 @@
             @if(imagePreviewUrl) {
             <div class="image-preview">
                 <img [src]="imagePreviewUrl" alt="Profile preview">
-                <button type="button" class="btn-remove-image" (click)="removeSelectedImage()">
+                <button class="btn-remove-image" type="button" (click)="removeSelectedImage()">
                     <i class="fa fa-times"></i>
                 </button>
             </div>
             }
             <div class="upload-button-container">
-                <input type="file" id="profileImage" accept="image/*" (change)="onFileSelected($event)"
-                    class="file-input">
-                <label for="profileImage" class="btn-upload">
+                <input class="file-input" type="file" id="profileImage" accept="image/*"
+                    (change)="onFileSelected($event)">
+                <label class="btn-upload" for="profileImage">
                     <i class="fa fa-upload"></i> {{ imagePreviewUrl ? 'Change Image' : 'Upload Image' }}
                 </label>
             </div>
@@ -123,25 +106,21 @@
     </div>
 
     <div class="form-buttons">
-        <button type="submit" [disabled]="loading || uploadingImage || registerForm.invalid" class="btn-primary">
+        <button class="btn-primary" type="submit" [disabled]="loading || uploadingImage || registerForm.invalid">
             @if(loading || uploadingImage) {
             <span>Processing...</span>
             } @else {
             <span>Register</span>
             }
         </button>
-        <button type="button" [disabled]="loading || uploadingImage" (click)="navigateToLogin()"
-            class="btn-register">Back to login</button>
+        <button class="btn-register" type="button" [disabled]="loading || uploadingImage"
+            (click)="navigateToLogin()">Back to login</button>
     </div>
 
     @if(errorMessage) {
-    <div class="error-message">
-        {{ errorMessage }}
-    </div>
+    <div class="error-message">{{ errorMessage }}</div>
     }
     @if(successMessage) {
-    <div class="success-message">
-        {{ successMessage }}
-    </div>
+    <div class="success-message">{{ successMessage }}</div>
     }
 </form>

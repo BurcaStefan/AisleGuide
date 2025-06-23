@@ -24,6 +24,20 @@ export class LoginComponent implements OnInit {
   successMessage: string = '';
   returnUrl: string = '/';
 
+  get isEmailInvalid(): boolean {
+    return Boolean(
+      this.loginForm.get('email')?.invalid &&
+        this.loginForm.get('email')?.touched
+    );
+  }
+
+  get isPasswordInvalid(): boolean {
+    return Boolean(
+      this.loginForm.get('password')?.invalid &&
+        this.loginForm.get('password')?.touched
+    );
+  }
+
   constructor(
     private userService: UserService,
     private fb: FormBuilder,
