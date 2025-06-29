@@ -145,6 +145,10 @@
   font-size: 1.8rem;
   color: #212121;
   margin-bottom: 10px;
+
+  input {
+    max-width: 250px;
+  }
 }
 
 .rating-container {
@@ -178,6 +182,10 @@
   display: flex;
   margin-bottom: 10px;
   align-items: center;
+
+  input {
+    max-width: 200px;
+  }
 }
 
 .label {
@@ -224,6 +232,10 @@
   flex: 1 0 100%;
   width: 100%;
   margin-top: 20px;
+
+  textarea {
+    max-width: 97%;
+  }
 }
 
 .description-section h4,
@@ -329,7 +341,6 @@
   border-radius: 4px;
   padding: 2px 5px;
   font-size: inherit;
-  font-family: inherit;
   color: inherit;
   display: inline-block;
   width: auto;
@@ -835,7 +846,6 @@ input.edit-in-place {
   border: 1px solid #ddd;
   border-radius: 4px;
   resize: vertical;
-  font-family: inherit;
   font-size: 0.95rem;
 
   &:focus {
